@@ -13,6 +13,14 @@ public:
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
         return converter.from_bytes(str);
     }
+
+    static std::string getTerminalType() {
+        const char* term = std::getenv("TERM_PROGRAM");
+        if (term) return std::string(term);
+        term = std::getenv("TERM");
+        if (term) return std::string(term);
+        return "unknown";
+    }
 };
 
 #endif //TERMPOKER_UTILS_H
