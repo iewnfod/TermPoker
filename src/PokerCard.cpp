@@ -37,7 +37,7 @@ void Player::printCards() const {
             body1 += " ";
         }
         const int body2Padding = std::ceil((width-vWidth-1)/2.0);
-        body2 += "|";
+        body2 += "│";
         for (int i = 0; i < body2Padding; i++) {
             body2 += " ";
         }
