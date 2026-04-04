@@ -62,9 +62,10 @@ public:
             std::cout << card->getTypeString() << " " << card->getValueString() << std::endl;
         }
     };
-    void printCardsByPlayer() const {
+    void printCardsByPlayer() {
         for (int i = 0; i < this->players.size(); i++) {
             std::cout << "Player " << i+1 << std::endl;
+            this->players[i].sortCards();
             this->players[i].printCards();
         }
     };
