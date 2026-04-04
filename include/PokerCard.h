@@ -55,6 +55,11 @@ public:
                 return "⭐";
         }
         return "";
+    };
+
+    int getValueIndex() const {
+        const auto indexMap = getPokerCardValueIndex();
+        return indexMap.at(value);
     }
 
     std::string getValueString() const {
@@ -91,7 +96,7 @@ public:
                 return "LJ";
         }
         return "";
-    }
+    };
 };
 
 #endif //TERMPOKER_POKERCARD_H

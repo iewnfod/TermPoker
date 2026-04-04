@@ -4,8 +4,6 @@
 
 #ifndef TERMPOKER_PLAYER_H
 #define TERMPOKER_PLAYER_H
-#include <codecvt>
-#include <locale>
 #include <vector>
 
 #include "PokerCard.h"
