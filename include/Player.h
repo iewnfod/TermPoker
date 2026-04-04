@@ -4,6 +4,8 @@
 
 #ifndef TERMPOKER_PLAYER_H
 #define TERMPOKER_PLAYER_H
+#include <codecvt>
+#include <locale>
 #include <vector>
 
 #include "PokerCard.h"
@@ -22,6 +24,8 @@ public:
     std::vector<PokerCard*> getCards() const {
         return cards;
     };
+
+    void printCards() const;
 };
 
 #endif //TERMPOKER_PLAYER_H

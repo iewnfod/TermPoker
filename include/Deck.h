@@ -31,7 +31,7 @@ public:
     };
     void init() {
         for (int i = 0; i < this->deckNumber; i ++) {
-            for (auto poker_card_value_pair : POKER_CARD_VALUE_INDEX) {
+            for (auto poker_card_value_pair : getPokerCardValueIndex()) {
                 auto pokerValue = poker_card_value_pair.first;
                 if (pokerValue == POKER_CARD_VALUE::LargeJoker || pokerValue == POKER_CARD_VALUE::SmallJoker) {
                     std::unique_ptr<PokerCard> card(new PokerCard(pokerValue, POKER_CARD_TYPE::Joker));
@@ -65,9 +65,7 @@ public:
     void printCardsByPlayer() const {
         for (int i = 0; i < this->players.size(); i++) {
             std::cout << "Player " << i+1 << std::endl;
-            for (auto card : this->players[i].getCards()) {
-                std::cout << card->getTypeString() << " " << card->getValueString() << std::endl;
-            }
+            this->players[i].printCards();
         }
     };
 };

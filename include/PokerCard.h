@@ -15,21 +15,24 @@ enum class POKER_CARD_TYPE {
     Clubs, Diamonds, Hearts, Spades, Joker
 };
 
-extern std::map<POKER_CARD_VALUE, int> POKER_CARD_VALUE_INDEX = {
-    {POKER_CARD_VALUE::N3, 1},
-    {POKER_CARD_VALUE::N4, 2},
-    {POKER_CARD_VALUE::N5, 3},
-    {POKER_CARD_VALUE::N6, 4},
-    {POKER_CARD_VALUE::N7, 5},
-    {POKER_CARD_VALUE::N8, 6},
-    {POKER_CARD_VALUE::N9, 7},
-    {POKER_CARD_VALUE::N10, 8},
-    {POKER_CARD_VALUE::J, 9},
-    {POKER_CARD_VALUE::Q, 10},
-    {POKER_CARD_VALUE::K, 11},
-    {POKER_CARD_VALUE::SmallJoker, 12},
-    {POKER_CARD_VALUE::LargeJoker, 13},
-};
+inline std::map<POKER_CARD_VALUE, int> getPokerCardValueIndex() {
+    static std::map<POKER_CARD_VALUE, int> POKER_CARD_VALUE_INDEX = {
+        {POKER_CARD_VALUE::N3, 1},
+        {POKER_CARD_VALUE::N4, 2},
+        {POKER_CARD_VALUE::N5, 3},
+        {POKER_CARD_VALUE::N6, 4},
+        {POKER_CARD_VALUE::N7, 5},
+        {POKER_CARD_VALUE::N8, 6},
+        {POKER_CARD_VALUE::N9, 7},
+        {POKER_CARD_VALUE::N10, 8},
+        {POKER_CARD_VALUE::J, 9},
+        {POKER_CARD_VALUE::Q, 10},
+        {POKER_CARD_VALUE::K, 11},
+        {POKER_CARD_VALUE::SmallJoker, 12},
+        {POKER_CARD_VALUE::LargeJoker, 13},
+    };
+    return POKER_CARD_VALUE_INDEX;
+}
 
 class PokerCard {
     POKER_CARD_VALUE value;
@@ -83,9 +86,9 @@ public:
             case POKER_CARD_VALUE::N2:
                 return "2";
             case POKER_CARD_VALUE::SmallJoker:
-                return "Small Joker";
+                return "SJ";
             case POKER_CARD_VALUE::LargeJoker:
-                return "Large Joker";
+                return "LJ";
         }
         return "";
     }
