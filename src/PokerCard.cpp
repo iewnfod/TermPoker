@@ -19,8 +19,10 @@ void Player::printCards() const {
         const int vWidth = static_cast<int>(v.length());
         const int tsWidth = static_cast<int>(Utils::to_wstring(t).length());
         int widthOffset = 0;
+        int numberOffset = 0;
         if (term == "xterm-256color") {
             widthOffset += 1;
+            numberOffset += 1;
             if (card->getType() == POKER_CARD_TYPE::Joker) {
                 widthOffset -= 2;
             }
@@ -36,7 +38,7 @@ void Player::printCards() const {
         for (int i = 0; i < width-tsWidth-1+widthOffset; i++) {
             body1 += " ";
         }
-        const int body2Padding = std::ceil((width-vWidth-1)/2.0);
+        const int body2Padding = static_cast<int>(std::ceil((width-vWidth-1)/2.0)) + numberOffset;
         body2 += "│";
         for (int i = 0; i < body2Padding; i++) {
             body2 += " ";
