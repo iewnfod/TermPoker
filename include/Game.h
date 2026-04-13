@@ -6,23 +6,41 @@
 #define TERMPOKER_GAME_H
 #include <map>
 #include <string>
+#include <vector>
 
 enum class GameMenu {
-    SelectDifficulty,
+    PlayNow,
+    SubDifficultyEasy,
+    SubDifficultyMedium,
+    SubDifficultyHard,
     CheckHistory,
     Quit,
 };
 
 class Game {
-    GameMenu menu = GameMenu::SelectDifficulty;
+    GameMenu menu = GameMenu::PlayNow;
+    bool quitFlag = false;
 
     static std::map<GameMenu, std::string> getAllMenu() {
         std::map<GameMenu, std::string> menuMap = {
-            {GameMenu::SelectDifficulty, "Select Difficulty"},
+            {GameMenu::PlayNow, "Play Now"},
+            {GameMenu::SubDifficultyEasy, "Easy Mode"},
+            {GameMenu::SubDifficultyMedium, "Medium Mode"},
+            {GameMenu::SubDifficultyHard, "Hard Mode"},
             {GameMenu::CheckHistory, "Check History"},
             {GameMenu::Quit, "Quit"},
         };
         return menuMap;
+    }
+
+    static std::map<GameMenu, std::vector<GameMenu>> getSubMenuRelations() {
+        std::map<GameMenu, std::vector<GameMenu>> subMenuMap = {
+            {GameMenu::PlayNow, std::vector<GameMenu>{
+                GameMenu::SubDifficultyEasy, GameMenu::SubDifficultyMedium,
+                GameMenu::SubDifficultyHard
+            }},
+        };
+        return subMenuMap;
     }
 
     static std::string getMenuString(GameMenu m) {
@@ -49,13 +67,17 @@ class Game {
     }
 
     void printMenu() const;
-    static void clearMenu() ;
+    static void clearMenu();
 
 public:
     Game() = default;
 
     void save();
     void load();
+    void quit() {
+        this->quitFlag = true;
+    }
+    void mainloop();
     void welcome();
 };
 

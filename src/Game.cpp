@@ -10,12 +10,36 @@
 
 void Game::printMenu() const {
     const auto allMenuMap = getAllMenu();
-    for (auto & it : allMenuMap) {
-        if (this->menu == it.first) {
+    const auto subMenuRelations = getSubMenuRelations();
+    for (auto it = allMenuMap.begin(); it != allMenuMap.end(); ++it) {
+        if (this->menu == it->first) {
             Utils::setFgColor(TerminalColor::Yellow);
         }
-        std::cout << "> " << it.second << std::endl;
+        std::cout << "> " << it->second << std::endl;
         Utils::resetColor();
+
+        auto subMenu = subMenuRelations.find(it->first);
+        if (subMenu == subMenuRelations.end()) {
+            for (auto r = subMenuRelations.begin(); r != subMenuRelations.end(); ++r) {
+                for (auto & rr : r->second) {
+                    if (rr == this->menu && it->first == r->first) {
+                        subMenu = r;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (subMenu != subMenuRelations.end()) {
+            for (auto & m : subMenu->second) {
+                if (this->menu == m) {
+                    Utils::setFgColor(TerminalColor::Yellow);
+                }
+                std::cout << "  > " << getMenuString(m) << std::endl;
+                Utils::resetColor();
+                ++it;
+            }
+        }
     }
 }
 
@@ -36,7 +60,7 @@ void Game::welcome() {
         ch = Utils::getch();
         if (ch == 0x1B) {
             if (Utils::getch() == 0x5B) {
-                switch (Utils::getch()) {
+                switch (Utils::getch()) {  // [
                     case 0x41:  // 'A' Up
                         this->menuMoveUp();
                         break;
@@ -48,7 +72,7 @@ void Game::welcome() {
             }
         }
         #ifdef _WIN32
-        else if (ch == 0xE0 || ch == 0x00) {
+        else if (ch == 0xE0 || ch == 0x00) {  // Windows Extend
             switch (Utils::getch()) {
                 case 0x48:  // Up
                     this->menuMoveUp();
@@ -68,5 +92,17 @@ void Game::welcome() {
         clearMenu();
     }
 
-    std::cout << getMenuString(this->menu) << std::endl;
+    if (this->menu == GameMenu::Quit) {
+        this->quit();
+    } else {
+        std::cout << getMenuString(this->menu) << std::endl;
+    }
+}
+
+void Game::mainloop() {
+    while (true) {
+        if (this->quitFlag) {
+            break;
+        }
+    }
 }

@@ -12,15 +12,7 @@ int main() {
 
     auto game = new Game();
     game->welcome();
-
-    auto deck = new Deck(2);
-
-    for (int i = 0; i < 4; i ++) {
-        Player player;
-        deck->addPlayer(player);
-    }
-    deck->givePlayerCards();
-    deck->printCardsByPlayer();
+    game->mainloop();
 
     return 0;
 }
