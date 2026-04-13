@@ -1,4 +1,5 @@
 #include "../include/Deck.h"
+#include "../include/Game.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -8,6 +9,9 @@ int main() {
     #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
     #endif
+
+    auto game = new Game();
+    game->welcome();
 
     auto deck = new Deck(2);
 

@@ -25,7 +25,9 @@ public:
     ~Deck() {
         this->cards.clear();
     };
-    int getDeckSize() const {return this->cards.size();};
+    int getDeckSize() const {
+        return static_cast<int>(this->cards.size());
+    };
     void addPlayer(const Player& player) {
         this->players.push_back(player);
     };
@@ -51,7 +53,7 @@ public:
         std::shuffle(cards.begin(), cards.end(), g);
     };
     void givePlayerCards() {
-        for (int i = 0; i < cards.size(); i += this->players.size()) {
+        for (int i = 0; i < cards.size(); i += static_cast<int>(this->players.size())) {
             for (int j = 0; j < this->players.size(); j++) {
                 this->players[j].getCard(cards[i+j].get());
             }
