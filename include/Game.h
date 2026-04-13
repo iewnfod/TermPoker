@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "Deck.h"
+
 enum class GameMenu {
     PlayNow,
     SubDifficultyEasy,
@@ -20,6 +22,8 @@ enum class GameMenu {
 class Game {
     GameMenu menu = GameMenu::PlayNow;
     bool quitFlag = false;
+    Deck *deck;
+    Player *player{};
 
     static std::map<GameMenu, std::string> getAllMenu() {
         std::map<GameMenu, std::string> menuMap = {
@@ -70,7 +74,9 @@ class Game {
     static void clearMenu();
 
 public:
-    Game() = default;
+    Game() {
+        this->deck = new Deck(2);
+    };
 
     void save();
     void load();

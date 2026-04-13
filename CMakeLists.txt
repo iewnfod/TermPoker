@@ -7,11 +7,11 @@ set(SOURCE_FILES
         include/PokerCard.h
         include/Deck.h
         include/Player.h
-        src/PokerCard.cpp
         include/Utils.h
         include/Game.h
         src/Game.cpp
         src/Utils.cpp
+        src/Player.cpp
 )
 
 add_executable(termpoker ${SOURCE_FILES})

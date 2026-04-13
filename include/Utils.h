@@ -34,37 +34,64 @@ public:
         return "unknown";
     }
 
+    static std::string getResetColor() {
+        return "\033[0m";
+    }
+
     static void resetColor() {
         std::cout << "\033[0m";
     }
 
-    static void setFgColor(TerminalColor color) {
+    static std::string getFgColor(const TerminalColor color) {
         switch (color) {
             case TerminalColor::Dark:
-                std::cout << "\033[30m";
-                break;
+                return "\033[30m";
             case TerminalColor::Red:
-                std::cout << "\033[31m";
-                break;
+                return "\033[31m";
             case TerminalColor::Green:
-                std::cout << "\033[32m";
-                break;
+                return "\033[32m";
             case TerminalColor::Yellow:
-                std::cout << "\033[33m";
-                break;
+                return "\033[33m";
             case TerminalColor::Blue:
-                std::cout << "\033[34m";
-                break;
+                return "\033[34m";
             case TerminalColor::Purple:
-                std::cout << "\033[35m";
-                break;
+                return "\033[35m";
             case TerminalColor::LightBlue:
-                std::cout << "\033[36m";
-                break;
+                return "\033[36m";
             case TerminalColor::Light:
-                std::cout << "\033[37m";
-                break;
+                return "\033[37m";
         }
+        return "";
+    }
+
+    static std::string getBgColor(const TerminalColor color) {
+        switch (color) {
+            case TerminalColor::Dark:
+                return "\033[40m";
+            case TerminalColor::Red:
+                return "\033[41m";
+            case TerminalColor::Green:
+                return "\033[42m";
+            case TerminalColor::Yellow:
+                return "\033[43m";
+            case TerminalColor::Blue:
+                return "\033[44m";
+            case TerminalColor::Purple:
+                return "\033[45m";
+            case TerminalColor::LightBlue:
+                return "\033[46m";
+            case TerminalColor::Light:
+                return "\033[47m";
+        }
+        return "";
+    }
+
+    static void setFgColor(const TerminalColor color) {
+        std::cout << getFgColor(color);
+    }
+
+    static void setBgColor(const TerminalColor color) {
+        std::cout << getBgColor(color);
     }
 
     static void cursorMoveAndClearLastLine() {

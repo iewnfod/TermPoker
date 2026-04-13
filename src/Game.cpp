@@ -60,8 +60,8 @@ void Game::welcome() {
 
         ch = Utils::getch();
         if (ch == 0x1B) {
-            if (Utils::getch() == 0x5B) {
-                switch (Utils::getch()) {  // [
+            if (Utils::getch() == 0x5B) {  // [
+                switch (Utils::getch()) {
                     case 0x41:  // 'A' Up
                         this->menuMoveUp();
                         break;
@@ -106,9 +106,31 @@ void Game::welcome() {
 }
 
 void Game::mainloop() {
+    GameMenu action = this->menu;
+    if (this->menu == GameMenu::SubDifficultyEasy) {
+        deck->setDifficulty(GameDifficulty::Easy);
+        action = GameMenu::PlayNow;
+    }
+    if (this->menu == GameMenu::SubDifficultyMedium) {
+        deck->setDifficulty(GameDifficulty::Medium);
+        action = GameMenu::PlayNow;
+    }
+    if (this->menu == GameMenu::SubDifficultyHard) {
+        deck->setDifficulty(GameDifficulty::Hard);
+        action = GameMenu::PlayNow;
+    }
     while (true) {
-        if (this->quitFlag) {
+        if (action == GameMenu::Quit || this->quitFlag) {
             break;
+        } else if (action == GameMenu::CheckHistory) {
+            std::cout << "Coming soon..." << std::endl;
+        } else if (action == GameMenu::PlayNow) {
+            if (!this->deck->hasGivenCards()) {
+                this->player = this->deck->autoGeneratePlayers();
+                this->deck->givePlayerCards();
+            } else {
+                this->player->waitForUserInput();
+            }
         }
     }
 }
