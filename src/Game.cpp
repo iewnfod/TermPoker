@@ -57,6 +57,7 @@ void Game::welcome() {
     int ch = 0;
     while (true) {
         printMenu();
+
         ch = Utils::getch();
         if (ch == 0x1B) {
             if (Utils::getch() == 0x5B) {
@@ -87,8 +88,13 @@ void Game::welcome() {
         }
         #endif
         else if (ch == '\n' || ch == '\r') {
-            break;
+            if (this->menu == GameMenu::PlayNow) {
+                this->menu = GameMenu::SubDifficultyEasy;
+            } else {
+                break;
+            }
         }
+
         clearMenu();
     }
 
