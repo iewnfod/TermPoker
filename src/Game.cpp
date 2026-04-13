@@ -34,9 +34,22 @@ void Game::welcome() {
     while (true) {
         printMenu();
         ch = Utils::getch();
-        if (ch == 0xE0 || ch == 0x00) {
-            ch = Utils::getch();
-            switch (ch) {
+        if (ch == 0x1B) {
+            if (Utils::getch() == 0x5B) {
+                switch (Utils::getch()) {
+                    case 0x41:  // 'A' Up
+                        this->menuMoveUp();
+                        break;
+                    case 0x42:  // 'B' Down
+                        this->menuMoveDown();
+                        break;
+                    default: break;
+                }
+            }
+        }
+        #ifdef _WIN32
+        else if (ch == 0xE0 || ch == 0x00) {
+            switch (Utils::getch()) {
                 case 0x48:  // Up
                     this->menuMoveUp();
                     break;
@@ -47,7 +60,9 @@ void Game::welcome() {
                 // case 0x4D: std::cout << "Right" << std::endl; break; // Right
                 default: break;
             }
-        } else if (ch == '\n' || ch == '\r') {
+        }
+        #endif
+        else if (ch == '\n' || ch == '\r') {
             break;
         }
         clearMenu();
