@@ -175,14 +175,18 @@ void Player::printCards() const {
         << body1 << std::endl
         << body2 << std::endl
         << body3 << std::endl
-        << tail << std::endl;
+        << tail << std::endl
+        << hint << std::endl;
 }
 
 std::vector<PokerCard*> Player::waitForUserInput() {
-    std::cout << "Yellow means current card." << std::endl;
+    std::cout << std::endl;
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, and <enter↩️> to confirm." << std::endl;
 
+    this->hint.clear();
+
     sortCards();
+    cardMoveRight();
 
     int ch = 0;
     while (true) {
@@ -219,11 +223,26 @@ std::vector<PokerCard*> Player::waitForUserInput() {
             this->selectCard();
         }
         else if (ch == '\n' || ch == '\r') {
-            break;
+            if (checkIsSelectedCardTypeValid()) {
+                this->playSelectedCards();
+                break;
+            } else {
+                this->hint = Utils::getFgColor(TerminalColor::Red);
+                if (this->selectedCards.empty()) {
+                    this->hint += "Select at least one card";
+                } else {
+                    this->hint += "Invalid card type";
+                }
+                this->hint += Utils::getResetColor();
+            }
         }
 
         clearCards();
     }
 
     return this->selectedCards;
+}
+
+void Player::autoPlay() {
+    this->playCards({this->cards.front()});
 }

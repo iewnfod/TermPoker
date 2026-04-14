@@ -118,18 +118,22 @@ void Game::mainloop() {
         deck->setDifficulty(GameDifficulty::Hard);
         action = GameMenu::PlayNow;
     }
-    while (true) {
-        if (action == GameMenu::Quit || this->quitFlag) {
-            break;
-        } else if (action == GameMenu::CheckHistory) {
-            std::cout << "Coming soon..." << std::endl;
-        } else if (action == GameMenu::PlayNow) {
-            if (!this->deck->hasGivenCards()) {
-                this->player = this->deck->autoGeneratePlayers();
-                this->deck->givePlayerCards();
-            } else {
-                this->player->waitForUserInput();
+    if (action == GameMenu::Quit || this->quitFlag) {
+        return;
+    } else if (action == GameMenu::CheckHistory) {
+        std::cout << "Coming soon..." << std::endl;
+    } else if (action == GameMenu::PlayNow) {
+        this->player = this->deck->autoGeneratePlayers();
+        this->deck->givePlayerCards();
+        while (true) {
+            if (this->quitFlag) {
+                break;
             }
+            this->player->waitForUserInput();
+            std::cout << "You played: " << this->player->getLastPlayedCardsString() << std::endl;
+            this->deck->robotPlayCards();
         }
     }
+
+    this->welcome();
 }
