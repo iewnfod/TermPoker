@@ -175,6 +175,23 @@ public:
         }
     }
 
+    static std::string getPlayCardTypeString(const PlayCardType t) {
+        std::map<PlayCardType, std::string> m = {
+            {PlayCardType::Single, "Single"},
+            {PlayCardType::Pair, "Pair"},
+            {PlayCardType::Triple, "Triple"},
+            {PlayCardType::Boom, "Boom"},
+            {PlayCardType::ThreePlusOne, "Three Plus One"},
+            {PlayCardType::ThreePlusTwo, "Three Plus Two"},
+            {PlayCardType::Straight, "Straight"},
+            {PlayCardType::Flush, "Flush"},
+            {PlayCardType::DoubleTriple, "Double Triple"},
+            {PlayCardType::TriplePair, "Triple Pair"},
+            {PlayCardType::Invalid, "Invalid"},
+        };
+        return m[t];
+    }
+
     bool checkIsSelectedCardTypeValid() const {
         return getPlayCardType(this->selectedCards) != PlayCardType::Invalid;
     }

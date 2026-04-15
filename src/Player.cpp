@@ -176,7 +176,7 @@ void Player::printCards() const {
         << body2 << std::endl
         << body3 << std::endl
         << tail << std::endl
-        << hint << std::endl;
+        << "Card type: " << getPlayCardTypeString(getPlayCardType(this->selectedCards)) << " " << hint << std::endl;
 }
 
 std::vector<PokerCard*> Player::waitForUserInput() {
