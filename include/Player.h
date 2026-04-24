@@ -91,6 +91,54 @@ public:
         cards.push_back(card);
     }
 
+    static int getThreePlusXMainValueIndex(const std::vector<PokerCard*>& c) {
+        if (c[0]->getValueIndex() == c[1]->getValueIndex() && c[1]->getValueIndex() == c[2]->getValueIndex()) {
+            return c.front()->getValueIndex();
+        } else {
+            return c.back()->getValueIndex();
+        }
+    }
+
+    // return true if c1 is larger then c2
+    static bool compareCards(const std::vector<PokerCard*>& c1, const std::vector<PokerCard*>& c2) {
+        const auto c1Type = getPlayCardType(c1), c2Type = getPlayCardType(c2);
+        if (c1Type != c2Type) {
+            return false;
+        }
+        const bool firstCmp = c1[0]->getValueIndex() > c2[0]->getValueIndex();
+        switch (c1Type) {
+            case PlayCardType::Single:
+                return firstCmp;
+            case PlayCardType::Pair:
+                return firstCmp;
+            case PlayCardType::Triple:
+                return firstCmp;
+            case PlayCardType::Straight:
+                return firstCmp;
+            case PlayCardType::Flush:
+                return firstCmp;
+            case PlayCardType::DoubleTriple:
+                return firstCmp;
+            case PlayCardType::TriplePair:
+                return firstCmp;
+            case PlayCardType::Boom:
+                if (c1.size() > c2.size()) {
+                    return true;
+                } else if (c1.size() == c2.size()) {
+                    return firstCmp;
+                } else {
+                    return false;
+                }
+            case PlayCardType::ThreePlusOne:
+                return getThreePlusXMainValueIndex(c1) > getThreePlusXMainValueIndex(c2);
+            case PlayCardType::ThreePlusTwo:
+                return getThreePlusXMainValueIndex(c1) > getThreePlusXMainValueIndex(c2);
+            case PlayCardType::Invalid:
+                return false;
+        }
+        return false;
+    }
+
     static PlayCardType getPlayCardType(const std::vector<PokerCard*>& cds) {
         bool isSameValue = true, isStraight = true, isSameType = true;
 
