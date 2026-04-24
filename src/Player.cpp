@@ -182,7 +182,7 @@ void Player::printCards() const {
 std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, and <enter↩️> to confirm." << std::endl;
-
+    // print left cards here
     this->hint.clear();
 
     sortCards();

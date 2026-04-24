@@ -19,10 +19,18 @@ class Deck {
     std::vector<Player> players;
     GameDifficulty difficulty = GameDifficulty::Easy;
     bool isGivenCards = false;
+    std::map<POKER_CARD_VALUE, int> leftCards;
 public:
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
         this->init();
         this->shuffle();
+        for (const auto & card : cards) {
+            if (leftCards.find(card->getValue()) != leftCards.end()) {
+                leftCards[card->getValue()]++;
+            } else {
+                leftCards[card->getValue()] = 1;
+            }
+        }
     }
     ~Deck() {
         this->cards.clear();
@@ -36,6 +44,7 @@ public:
     Player* autoGeneratePlayers() {
         for (int i = 0; i < 4; i++) {
             const auto player = new Player(i != 0);
+            bindToPlayer(*player);
             player->setIsTeamWithPlayer(i % 2 == 0);
             this->players.push_back(*player);
         }
@@ -101,6 +110,16 @@ public:
             }
             std::cout << "Robot " << i+1 << " played: " << this->players[i].getLastPlayedCardsString() << std::endl;
         }
+    }
+    void onPlayerPlayedCard(const POKER_CARD_VALUE cardValue) {
+        if (leftCards.find(cardValue) != leftCards.end()) {
+            leftCards[cardValue]--;
+        }
+    }
+    void bindToPlayer(Player& player) {
+        player.onPlayCard([this](const POKER_CARD_VALUE card) {
+            this->onPlayerPlayedCard(card);
+        });
     }
 };
 

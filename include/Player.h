@@ -5,6 +5,8 @@
 #ifndef TERMPOKER_PLAYER_H
 #define TERMPOKER_PLAYER_H
 #include <algorithm>
+#include <functional>
+#include <utility>
 #include <vector>
 
 #include "PokerCard.h"
@@ -37,6 +39,7 @@ class Player {
     std::string hint;
     GameDifficulty difficulty = GameDifficulty::Easy;
     bool isTeamWithPlayer = false;
+    std::function<void(POKER_CARD_VALUE)> handlePlayCard;
 
     void selectCard() {
         if (selectedCard == nullptr) {
@@ -248,6 +251,7 @@ public:
         for (auto c : cds) {
             auto it = std::find(cards.begin(), cards.end(), c);
             if (it != cards.end()) {
+                this->handlePlayCard(c->getValue());
                 cards.erase(it);
             }
         }
@@ -307,6 +311,10 @@ public:
 
     bool getIsTeamWithPlayer() const {
         return this->isTeamWithPlayer;
+    }
+
+    void onPlayCard(std::function<void(POKER_CARD_VALUE)> f) {
+        this->handlePlayCard = std::move(f);
     }
 };
 
