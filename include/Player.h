@@ -40,6 +40,7 @@ class Player {
     GameDifficulty difficulty = GameDifficulty::Easy;
     bool isTeamWithPlayer = false;
     std::function<void(POKER_CARD_VALUE)> handlePlayCard;
+    std::function<std::map<POKER_CARD_VALUE, int>()> handlePrintLeftCards;
 
     void selectCard() {
         if (selectedCard == nullptr) {
@@ -316,6 +317,11 @@ public:
     void onPlayCard(std::function<void(POKER_CARD_VALUE)> f) {
         this->handlePlayCard = std::move(f);
     }
+
+    void onPrintLeftCard(std::function<std::map<POKER_CARD_VALUE, int>()> provider) {
+        this->handlePrintLeftCards = std::move(provider);
+    }
+
 };
 
 #endif //TERMPOKER_PLAYER_H

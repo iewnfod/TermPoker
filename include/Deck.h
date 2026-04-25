@@ -20,6 +20,8 @@ class Deck {
     GameDifficulty difficulty = GameDifficulty::Easy;
     bool isGivenCards = false;
     std::map<POKER_CARD_VALUE, int> leftCards;
+    std::vector<POKER_CARD_VALUE> getRemainingCards() const;
+
 public:
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
         this->init();
@@ -119,6 +121,9 @@ public:
     void bindToPlayer(Player& player) {
         player.onPlayCard([this](const POKER_CARD_VALUE card) {
             this->onPlayerPlayedCard(card);
+        });
+        player.onPrintLeftCard([this]() -> std::map<POKER_CARD_VALUE, int> {
+            return this->leftCards;
         });
     }
 };
