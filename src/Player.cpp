@@ -279,7 +279,7 @@ void Player::printLeftCards() const {
         std::cout << "Remaining cards: " << column << std::endl;
         std::string head, body, tail;
         for (const auto& c : remainCards) {
-            const int width = static_cast<int>(c[0].size());
+            const int width = static_cast<int>(Utils::to_wstring(c[0]).size());
             if (printedColumn + width >= column) {
                 std::cout << head << std::endl << body << std::endl << tail << std::endl;
                 printedColumn = 0;
