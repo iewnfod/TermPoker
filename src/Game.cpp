@@ -60,6 +60,11 @@ void Game::welcome() {
     std::cout << "Terminal Type: " << term << "; ";
     std::cout << "Column: " << column << "; " << std::endl;
     Utils::resetColor();
+    if ((term == "xterm-256color" && column < 190) || column < 80) {
+        Utils::setFgColor(TerminalColor::Red);
+        std::cout << "Your terminal column is less than expected. There might be some display error." << std::endl;
+        Utils::resetColor();
+    }
 
     int ch = 0;
     while (true) {
