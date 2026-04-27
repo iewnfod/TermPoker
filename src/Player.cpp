@@ -169,6 +169,9 @@ void Player::printCards() const {
     }
     body1 += "│"; body2 += "│"; body3 += "│";
     body1 += resetColor; body2 += resetColor; body3 += resetColor;
+    if (this->cards.empty()) {
+        uh.clear(); head.clear(); body1.clear(); body2.clear(); body3.clear(); tail.clear();
+    }
     std::cout
         << uh << std::endl
         << head << std::endl
@@ -184,58 +187,14 @@ std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, and <enter↩️> to confirm." << std::endl;
     if (this->handlePrintLeftCards) {
         std::map<POKER_CARD_VALUE, int> remainingCardsInGame = this->handlePrintLeftCards();
-        std::string cardValue;
         this->hint.clear();
         std::cout << "Remaining cards(Card Value/Number of Cards): ";
         for (const auto& kv : remainingCardsInGame) {
             const POKER_CARD_VALUE card = kv.first;
+            const auto tmpC = new PokerCard(kv.first, POKER_CARD_TYPE::Clubs);
+            const std::string cardValue = tmpC->getValueString();
+            delete tmpC;
             const int count = kv.second;
-            switch (card) {
-                case POKER_CARD_VALUE::N3:
-                    cardValue = "3";
-                    break;
-                case POKER_CARD_VALUE::N4:
-                    cardValue = "4";
-                    break;
-                case POKER_CARD_VALUE::N5:
-                    cardValue = "5";
-                    break;
-                case POKER_CARD_VALUE::N6:
-                    cardValue = "6";
-                    break;
-                case POKER_CARD_VALUE::N7:
-                    cardValue = "7";
-                    break;
-                case POKER_CARD_VALUE::N8:
-                    cardValue = "8";
-                    break;
-                case POKER_CARD_VALUE::N9:
-                    cardValue = "9";
-                    break;
-                case POKER_CARD_VALUE::N10:
-                    cardValue = "10";
-                    break;
-                case POKER_CARD_VALUE::J:
-                    cardValue = "J";
-                    break;
-                case POKER_CARD_VALUE::Q:
-                    cardValue = "Q";
-                    break;
-                case POKER_CARD_VALUE::K:
-                    cardValue = "K";
-                    break;
-                case POKER_CARD_VALUE::A:
-                    cardValue = "A";
-                    break;
-                case POKER_CARD_VALUE::N2:
-                    cardValue = "2";
-                    break;
-                case POKER_CARD_VALUE::SmallJoker:
-                    cardValue = "SJ";
-                    break;
-                case POKER_CARD_VALUE::LargeJoker:
-                    cardValue = "LJ";
-            }
             this->hint = Utils::getResetColor();
             this->hint += cardValue;
             this->hint += " | ";
