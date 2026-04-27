@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <array>
 
 #include "../include/Player.h"
 #include "../include/Utils.h"
@@ -185,33 +186,8 @@ void Player::printCards() const {
 std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, and <enter↩️> to confirm." << std::endl;
-    if (this->handlePrintLeftCards) {
-        const std::map<POKER_CARD_VALUE, int> remainingCardsInGame = this->handlePrintLeftCards();
-        this->hint.clear();
-        std::cout << "Remaining cards(Card Value/Number of Cards): ";
-        for (const auto& kv : remainingCardsInGame) {
-            const auto tmpC = new PokerCard(kv.first, POKER_CARD_TYPE::Clubs);
-            const std::string cardValue = tmpC->getValueString();
-            delete tmpC;
-            const int count = kv.second;
-            this->hint = Utils::getResetColor();
-            this->hint += cardValue;
-            this->hint += " | ";
-            if (count != 0) {
-                this->hint += std::to_string(count);
-                this->hint += "   ";
-                std::cout << this->hint;
-            } else {
-                std::cout << this->hint;
-                this->hint = Utils::getFgColor(TerminalColor::Red);
-                this->hint += std::to_string(count);
-                this->hint += "   ";
-                std::cout << this->hint;
-            }
-        }
-        std::cout << std::endl;
-    }
     this->hint.clear();
+    this->printLeftCards();
 
     sortCards();
     cardMoveRight();
@@ -273,4 +249,47 @@ std::vector<PokerCard*> Player::waitForUserInput() {
 
 void Player::autoPlay() {
     this->playCards({this->cards.front()});
+}
+
+void Player::printLeftCards() const {
+    if (this->handlePrintLeftCards && this->difficulty == GameDifficulty::Easy) {
+        std::map<POKER_CARD_VALUE, int> remainingCardsInGame = this->handlePrintLeftCards();
+        std::vector<std::array<std::string, 3>> remainCards = {};
+        for (const auto& kv : remainingCardsInGame) {
+            const int count = kv.second;
+            if (count == 0) continue;
+            const auto tmpC = new PokerCard(kv.first, POKER_CARD_TYPE::Clubs);
+            const std::string cardValue = tmpC->getValueString();
+            delete tmpC;
+            std::string head = "┌─", body = "│ ", tail = "└─";
+            for (const char c : cardValue) {
+                head += "─";
+                tail += "─";
+                body += c;
+            }
+            head += "─┐"; body += " │"; tail += "─┘";
+            body += "x" + std::to_string(count);
+            for (int i = 0; i < std::to_string(count).size()+1; i++) {
+                head += " ";
+                tail += " ";
+            }
+            remainCards.push_back({head, body, tail});
+        }
+        int column = Utils::getTermColumn(), printedColumn = 0;
+        std::cout << "Remaining cards: " << column << std::endl;
+        std::string head, body, tail;
+        for (const auto& c : remainCards) {
+            const int width = static_cast<int>(c[0].size());
+            if (printedColumn + width >= column) {
+                std::cout << head << std::endl << body << std::endl << tail << std::endl;
+                printedColumn = 0;
+                head.clear(); body.clear(); tail.clear();
+            }
+            printedColumn += width + 1;
+            head += c[0] + " "; body += c[1] + " "; tail += c[2] + " ";
+        }
+        if (!head.empty()) {
+            std::cout << head << std::endl << body << std::endl << tail << std::endl;
+        }
+    }
 }

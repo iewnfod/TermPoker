@@ -99,6 +99,7 @@ public:
     }
 
     static int getch();
+    static int getTermColumn();
 };
 
 #endif //TERMPOKER_UTILS_H

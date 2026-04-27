@@ -122,7 +122,7 @@ public:
         player.onPlayCard([this](const POKER_CARD_VALUE card) {
             this->onPlayerPlayedCard(card);
         });
-        player.onPrintLeftCard([this]() -> std::map<POKER_CARD_VALUE, int> {
+        player.onPrintLeftCard([this]() {
             return this->leftCards;
         });
     }

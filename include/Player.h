@@ -84,6 +84,8 @@ class Player {
             Utils::cursorMoveAndClearLastLine();
         }
     }
+
+    void printLeftCards() const;
 public:
     Player() = default;
 
@@ -321,7 +323,6 @@ public:
     void onPrintLeftCard(std::function<std::map<POKER_CARD_VALUE, int>()> provider) {
         this->handlePrintLeftCards = std::move(provider);
     }
-
 };
 
 #endif //TERMPOKER_PLAYER_H
