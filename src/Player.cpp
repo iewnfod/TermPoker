@@ -186,11 +186,10 @@ std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, and <enter↩️> to confirm." << std::endl;
     if (this->handlePrintLeftCards) {
-        std::map<POKER_CARD_VALUE, int> remainingCardsInGame = this->handlePrintLeftCards();
+        const std::map<POKER_CARD_VALUE, int> remainingCardsInGame = this->handlePrintLeftCards();
         this->hint.clear();
         std::cout << "Remaining cards(Card Value/Number of Cards): ";
         for (const auto& kv : remainingCardsInGame) {
-            const POKER_CARD_VALUE card = kv.first;
             const auto tmpC = new PokerCard(kv.first, POKER_CARD_TYPE::Clubs);
             const std::string cardValue = tmpC->getValueString();
             delete tmpC;
