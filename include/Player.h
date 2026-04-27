@@ -41,6 +41,7 @@ class Player {
     bool isTeamWithPlayer = false;
     std::function<void(POKER_CARD_VALUE)> handlePlayCard;
     std::function<std::map<POKER_CARD_VALUE, int>()> handlePrintLeftCards;
+    std::function<void()> handleQuit;
 
     void selectCard() {
         if (selectedCard == nullptr) {
@@ -324,6 +325,16 @@ public:
 
     void onPrintLeftCard(std::function<std::map<POKER_CARD_VALUE, int>()> provider) {
         this->handlePrintLeftCards = std::move(provider);
+    }
+
+    void onQuit(std::function<void()> f) {
+        this->handleQuit = std::move(f);
+    }
+
+    void quit() const {
+        if (this->handleQuit) {
+            this->handleQuit();
+        }
     }
 };
 

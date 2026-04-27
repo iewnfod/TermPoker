@@ -185,7 +185,7 @@ void Player::printCards() const {
 
 std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
-    std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, and <enter↩️> to confirm." << std::endl;
+    std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, <enter↩️> to confirm and <q> to exit this game." << std::endl;
     this->hint.clear();
     this->printLeftCards();
 
@@ -225,6 +225,10 @@ std::vector<PokerCard*> Player::waitForUserInput() {
         #endif
         else if (ch == ' ') {
             this->selectCard();
+        }
+        else if (ch == 'q') {
+            this->quit();
+            break;
         }
         else if (ch == '\n' || ch == '\r') {
             if (checkIsSelectedCardTypeValid()) {
@@ -276,7 +280,7 @@ void Player::printLeftCards() const {
             remainCards.push_back({head, body, tail});
         }
         int column = Utils::getTermColumn(), printedColumn = 0;
-        std::cout << "Remaining cards: " << column << std::endl;
+        std::cout << "Remaining cards: " << std::endl;
         std::string head, body, tail;
         for (const auto& c : remainCards) {
             const int width = static_cast<int>(Utils::to_wstring(c[0]).size());

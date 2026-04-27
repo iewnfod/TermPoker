@@ -8,6 +8,7 @@
 #include <iostream>
 #include <memory>
 #include <random>
+#include <utility>
 #include <vector>
 
 #include "Player.h"
@@ -21,7 +22,7 @@ class Deck {
     bool isGivenCards = false;
     std::map<POKER_CARD_VALUE, int> leftCards;
     std::vector<POKER_CARD_VALUE> getRemainingCards() const;
-
+    std::function<void()> handleQuit;
 public:
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
         this->init();
@@ -125,6 +126,17 @@ public:
         player.onPrintLeftCard([this]() {
             return this->leftCards;
         });
+        player.onQuit([this]() {
+            this->quit();
+        });
+    }
+    void onQuit(std::function<void()> q) {
+        this->handleQuit = std::move(q);
+    }
+    void quit() const {
+        if (this->handleQuit) {
+            this->handleQuit();
+        }
     }
 };
 

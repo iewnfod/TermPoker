@@ -76,11 +76,15 @@ class Game {
 public:
     Game() {
         this->deck = new Deck(2);
+        this->deck->onQuit([this]() {
+            this->quit();
+        });
     };
 
     void save();
     void load();
     void quit() {
+        std::cout << "Quit!" << std::endl;
         this->quitFlag = true;
     }
     void mainloop();

@@ -50,8 +50,16 @@ void Game::clearMenu() {
 }
 
 void Game::welcome() {
+    std::cout << std::endl;
     std::cout << "Welcome to TermPoker!" << std::endl;
     std::cout << "Use <up⬆️> or <down⬇️> to select and <enter↩️> to confirm." << std::endl;
+
+    const auto column = Utils::getTermColumn();
+    const auto term = Utils::getTerminalType();
+    Utils::setFgColor(TerminalColor::Light);
+    std::cout << "Terminal Type: " << term << "; ";
+    std::cout << "Column: " << column << "; " << std::endl;
+    Utils::resetColor();
 
     int ch = 0;
     while (true) {
@@ -126,10 +134,10 @@ void Game::mainloop() {
         this->player = this->deck->autoGeneratePlayers();
         this->deck->givePlayerCards();
         while (true) {
+            this->player->waitForUserInput();
             if (this->quitFlag) {
                 break;
             }
-            this->player->waitForUserInput();
             std::cout << "You played: " << this->player->getLastPlayedCardsString() << std::endl;
             this->deck->robotPlayCards();
         }
