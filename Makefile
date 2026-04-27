@@ -12,6 +12,9 @@ SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 # Generate object file names in the build directory
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 
+# Generate dependency file names (for header dependencies)
+DEPENDS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.d,$(SOURCES))
+
 # Default goal: build the target executable
 all: $(BIN_DIR)/$(TARGET)
 
@@ -27,14 +30,17 @@ $(BUILD_DIR):
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
-# Pattern rule to compile .cpp files into .o files
+# Pattern rule to compile .cpp files into .o files and generate .d files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+# Include dependency files (if they exist)
+-include $(DEPENDS)
 
 # Phony targets
 .PHONY: all clean run
 
-# Clean rule: remove build artifacts
+# Clean rule: remove build artifacts and dependency files
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
