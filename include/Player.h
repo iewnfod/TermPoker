@@ -172,6 +172,8 @@ public:
             case 3:
                 if (isSameValue) {
                     return PlayCardType::Triple;
+                } else {
+                    return PlayCardType::Invalid;
                 }
             case 4:
                 if (isSameValue) {
