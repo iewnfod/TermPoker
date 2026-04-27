@@ -28,8 +28,10 @@ inline std::map<POKER_CARD_VALUE, int> getPokerCardValueIndex() {
         {POKER_CARD_VALUE::J, 9},
         {POKER_CARD_VALUE::Q, 10},
         {POKER_CARD_VALUE::K, 11},
-        {POKER_CARD_VALUE::SmallJoker, 12},
-        {POKER_CARD_VALUE::LargeJoker, 13},
+        {POKER_CARD_VALUE::A, 12},
+        {POKER_CARD_VALUE::N2, 13},
+        {POKER_CARD_VALUE::SmallJoker, 15},
+        {POKER_CARD_VALUE::LargeJoker, 16},
     };
     return POKER_CARD_VALUE_INDEX;
 }
