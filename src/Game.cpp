@@ -106,6 +106,15 @@ void Game::welcome() {
                 break;
             }
         }
+        else if (ch == 'q') {
+            this->menu = GameMenu::Quit;
+        }
+        else if (ch == 'p') {
+            this->menu = GameMenu::PlayNow;
+        }
+        else if (ch == 'c') {
+            this->menu = GameMenu::CheckHistory;
+        }
 
         clearMenu();
     }
