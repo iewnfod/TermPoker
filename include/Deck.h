@@ -140,7 +140,7 @@ public:
         return this->rounds.size() != this->currentRound;
     }
 
-    std::vector<PokerCard*> getLastPlayedCards() const {
+    std::vector<PokerCard*> getTrueLastPlayedCards() const {
         auto round = this->rounds.back();
         if (!round.played.empty()) {
             for (int i = static_cast<int>(round.played.size())-1; i >= 0; i --) {
@@ -149,6 +149,15 @@ public:
                 }
             }
             return {};
+        } else {
+            return {};
+        }
+    }
+
+    std::vector<PokerCard*> getLastPlayedCards() const {
+        auto round = this->rounds.back();
+        if (!round.played.empty()) {
+            return round.played.back().cards;
         } else {
             return {};
         }
@@ -259,7 +268,7 @@ public:
             this->quit();
         });
         player.onGetLastPlayedCards([this]() {
-            return this->getLastPlayedCards();
+            return this->getTrueLastPlayedCards();
         });
     }
 

@@ -181,7 +181,7 @@ public:
         this->roundNumber = n;
     }
 
-    bool getIsRobot() {
+    bool getIsRobot() const {
         return this->isRobot;
     }
 };
