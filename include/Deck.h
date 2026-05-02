@@ -177,6 +177,10 @@ public:
         for (int i = 1; i < this->players.size(); i++) {
             this->players[i].autoPlay(this->isNewRound());
             std::cout << "Robot " << i+1 << " played: " << this->getLastPlayedCardsString() << std::endl;
+            if (checkWin()) {
+                break;
+            }
+            tryNewRound();
         }
     }
 
@@ -264,11 +268,6 @@ public:
                 leftCards[cardValue]--;
             }
         }
-        this->tryNewRound();
-        if (this->checkWin()) {
-            this->congratulateWin();
-            this->quit();
-        }
         return true;
     }
 
@@ -276,6 +275,9 @@ public:
      * Try to new a round if all players except the last played player played nothing.
      */
     void tryNewRound() {
+        if (isNewRound()) {
+            return;
+        }
         const auto played = this->rounds.back().played;
         bool canNewRoundOpen = true;
         if (played.size() >= this->players.size()) {
@@ -323,6 +325,7 @@ public:
     void congratulateWin() const {
         for (auto player : this->players) {
             if (player.getId() == this->winner) {
+                std::cout << std::endl;
                 if (!player.getIsRobot()) {
                     std::cout << "Congratulation! You win this game!" << std::endl;
                 } else {
@@ -338,8 +341,15 @@ public:
      * Output the information for one whole round.
      */
     void outputCollectInfo() const {
-        std::cout << "Player number: " << this->players.size() << std::endl;
-        std::cout << "The game finished in " << this->currentRound << " rounds" << std::endl;
+        std::cout << "This game finished in " << this->currentRound << " rounds." << std::endl;
+        std::cout << "There are total " << this->players.size() << " players in this game:" << std::endl;
+        for (int i = 0; i < this->players.size(); i++) {
+            std::string name = "Robot";
+            if (!this->players[i].getIsRobot()) {
+                name = "Player";
+            }
+            std::cout << " • " << name << " " << i+1 << " remain " << this->players[i].getCards().size() << " cards." << std::endl;
+        }
     }
 
     /**
@@ -376,6 +386,13 @@ public:
         if (this->handleQuit) {
             this->handleQuit();
         }
+    }
+
+    /**
+     * @return winner id
+     */
+    std::string getWinner() const {
+        return this->winner;
     }
 };
 

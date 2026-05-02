@@ -3,7 +3,7 @@ ifeq ($(OS),Windows_NT)
     # Windows
     CXXFLAGS_EXTRA = -D_WIN32_WINNT=0x0600
     LIBS = -lshell32
-    RM = del /Q
+    RM = rmdir /s /q
     MKDIR = mkdir
 else
     # Unix/Linux/macOS
@@ -59,7 +59,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 
 # Clean
 clean:
-	$(RM) $(BUILD_DIR) $(BIN_DIR)
+	$(RM) "$(CURDIR)/$(BUILD_DIR)" "$(CURDIR)/$(BIN_DIR)"
 
 # Run
 run: all

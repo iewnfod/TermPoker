@@ -146,16 +146,22 @@ void Game::mainloop() {
     } else if (action == GameMenu::CheckHistory) {
         std::cout << "Coming soon..." << std::endl;
     } else if (action == GameMenu::PlayNow) {
+        this->deck = new Deck(2);
         this->player = this->deck->autoGeneratePlayers();
         this->deck->givePlayerCards();
-        while (true) {
+        while (this->deck->getWinner().empty()) {
             this->player->waitForUserInput();
             if (this->quitFlag) {
                 break;
             }
             std::cout << std::endl << "You played: " << this->deck->getLastPlayedCardsString() << std::endl;
+            if (deck->checkWin()) {
+                break;
+            }
+            deck->tryNewRound();
             this->deck->robotPlayCards();
         }
+        deck->congratulateWin();
     } else if (action == GameMenu::About) {
         std::cout << "About TermPoker" << std::endl;
         std::cout << "Repository: " << Utils::getClickableLink("https://github.com/iewnfod/TermPoker") << std::endl;
