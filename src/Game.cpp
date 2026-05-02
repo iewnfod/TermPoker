@@ -160,7 +160,8 @@ void Game::mainloop() {
         std::cout << "About TermPoker" << std::endl;
         std::cout << "Repository: " << Utils::getClickableLink("https://github.com/iewnfod/TermPoker") << std::endl;
         std::cout << "Author: " << Utils::getClickableLink("Iewnfod", "https://github.com/iewnfod") << ", " << Utils::getClickableLink("Andy", "https://github.com/Andymaster007") << std::endl;
-        std::cout << "Data Storage Path: " << this->store.getBasePath() << std::endl;
+        std::cout << "Open Source License: " << Utils::getClickableLink("MPL-2.0", "https://github.com/iewnfod/TermPoker/blob/master/LICENSE") << std::endl;
+        std::cout << "Local Data Storage Path: " << this->store.getBasePath() << std::endl;
         std::cout << "────────────────────────────────────────────" << std::endl;
         std::cout << "Press any key to continue..." << std::endl;
         Utils::getch();
