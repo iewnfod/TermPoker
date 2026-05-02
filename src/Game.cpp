@@ -148,22 +148,27 @@ void Game::mainloop() {
         std::cout << "Coming soon..." << std::endl;
     } else if (action == GameMenu::PlayNow) {
         this->deck = new Deck(2);
-        this->player = this->deck->autoGeneratePlayers();
-        this->deck->setDifficulty(difficulty);
-        this->deck->givePlayerCards();
-        while (this->deck->getWinner().empty()) {
-            this->player->waitForUserInput();
+        deck->onQuit([this]() {
+            this->quit();
+        });
+        this->player = deck->autoGeneratePlayers();
+        deck->setDifficulty(difficulty);
+        deck->givePlayerCards();
+        while (deck->getWinner().empty()) {
+            player->waitForUserInput();
             if (this->quitFlag) {
                 break;
             }
-            std::cout << std::endl << "You played: " << this->deck->getLastPlayedCardsString() << std::endl;
+            std::cout << std::endl << "You played: " << deck->getLastPlayedCardsString() << std::endl;
             if (deck->checkWin()) {
                 break;
             }
             deck->tryNewRound();
-            this->deck->robotPlayCards();
+            deck->robotPlayCards();
         }
-        deck->congratulateWin();
+        if (!deck->getWinner().empty()) {
+            deck->congratulateWin();
+        }
     } else if (action == GameMenu::About) {
         std::cout << "About TermPoker" << std::endl;
         std::cout << "Repository: " << Utils::getClickableLink("https://github.com/iewnfod/TermPoker") << std::endl;

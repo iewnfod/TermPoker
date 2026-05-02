@@ -196,6 +196,9 @@ public:
      * @return vector of played cards
      */
     std::vector<PokerCard*> getTrueLastPlayedCards() const {
+        if (this->rounds.empty()) {
+            return {};
+        }
         auto round = this->rounds.back();
         if (!round.played.empty()) {
             for (int i = static_cast<int>(round.played.size())-1; i >= 0; i --) {
@@ -214,6 +217,9 @@ public:
      * @return vector of cards
      */
     std::vector<PokerCard*> getLastPlayedCards() const {
+        if (this->rounds.empty()) {
+            return {};
+        }
         auto round = this->rounds.back();
         if (!round.played.empty()) {
             return round.played.back().cards;
