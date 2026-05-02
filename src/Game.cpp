@@ -115,6 +115,9 @@ void Game::welcome() {
         else if (ch == 'c') {
             this->menu = GameMenu::CheckHistory;
         }
+        else if (ch == 'a') {
+            this->menu = GameMenu::About;
+        }
 
         clearMenu();
     }
