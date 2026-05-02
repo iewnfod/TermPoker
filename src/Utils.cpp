@@ -99,13 +99,17 @@ char Utils::getPathSeparator() {
 }
 
 std::string Utils::wstring2string(const std::wstring& wstr) {
-    std::mbstate_t state = std::mbstate_t();
-    size_t len = std::wcsrtombs(nullptr, &wstr.c_str(), 0, &state);
+    std::mbstate_t state{};
+    const wchar_t* src = wstr.c_str();
+    size_t len = std::wcsrtombs(nullptr, &src, 0, &state);
     if (len == static_cast<size_t>(-1)) {
         return "";
     }
+
     std::string result(len, '\0');
-    std::wcsrtombs(&result[0], &wstr.c_str(), len, &state);
+    state = std::mbstate_t{};
+    src = wstr.c_str();
+    std::wcsrtombs(result.data(), &src, len, &state);
     return result;
 }
 #endif
