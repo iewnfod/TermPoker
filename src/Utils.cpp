@@ -101,15 +101,18 @@ char Utils::getPathSeparator() {
 std::string Utils::wstring2string(const std::wstring& wstr) {
     std::mbstate_t state{};
     const wchar_t* src = wstr.c_str();
+
     size_t len = std::wcsrtombs(nullptr, &src, 0, &state);
     if (len == static_cast<size_t>(-1)) {
         return "";
     }
 
-    std::string result(len, '\0');
+    std::string result(len + 1, '\0');
     state = std::mbstate_t{};
     src = wstr.c_str();
-    std::wcsrtombs(result.data(), &src, len, &state);
+
+    std::wcsrtombs(&result[0], &src, result.size(), &state);
+    result.resize(len);
     return result;
 }
 #endif
