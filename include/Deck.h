@@ -38,6 +38,10 @@ class Deck {
     std::string winner;
 
 public:
+    /**
+     * Init deck, shuffle cards, count left cards.
+     * @param deckNumber number of deck of cards
+     */
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
         this->init();
         this->shuffle();
@@ -50,18 +54,33 @@ public:
         }
     }
 
+    /**
+     * Destroy cards and deck.
+     */
     ~Deck() {
         this->cards.clear();
     }
 
+    /**
+     * Get the number of all cards in this deck.
+     * @return all card number
+     */
     int getDeckSize() const {
         return static_cast<int>(this->cards.size());
     }
 
+    /**
+     * Add new player to this game.
+     * @param player new player for the game
+     */
     void addPlayer(const Player& player) {
         this->players.push_back(player);
     }
 
+    /**
+     * Automatically generate 4 players for this game, including 3 robots and 1 player.
+     * @return user controlled player
+     */
     Player* autoGeneratePlayers() {
         for (int i = 0; i < 4; i++) {
             const auto player = new Player(i != 0);
@@ -72,6 +91,9 @@ public:
         return &this->players[0];
     }
 
+    /**
+     * Init all cards needed.
+     */
     void init() {
         for (int i = 0; i < this->deckNumber; i ++) {
             for (const auto poker_card_value_pair : getPokerCardValueIndex()) {
@@ -89,12 +111,18 @@ public:
         }
     }
 
+    /**
+     * Shuffle cards into random order.
+     */
     void shuffle() {
         static std::random_device rd;
         static std::mt19937 g(rd());
         std::shuffle(cards.begin(), cards.end(), g);
     }
 
+    /**
+     * Assign cards to all players uniformly.
+     */
     void givePlayerCards() {
         for (int i = 0; i < cards.size(); i += static_cast<int>(this->players.size())) {
             for (int j = 0; j < this->players.size(); j++) {
@@ -104,12 +132,18 @@ public:
         this->isGivenCards = true;
     }
 
+    /**
+     * @deprecated no need to print all cards now
+     */
     void printAllCards() const {
         for (auto &card: this->cards) {
             std::cout << card->getTypeString() << " " << card->getValueString() << std::endl;
         }
     }
 
+    /**
+     * @deprecated no need to print cards by players individually, player can print it by themselves
+     */
     void printCardsByPlayer() {
         for (int i = 0; i < this->players.size(); i++) {
             std::cout << "Player " << i+1 << std::endl;
@@ -118,6 +152,10 @@ public:
         }
     }
 
+    /**
+     * Set difficulty of the game.
+     * @param d difficulty
+     */
     void setDifficulty(const GameDifficulty d) {
         this->difficulty = d;
         for (auto & player : this->players) {
@@ -125,10 +163,16 @@ public:
         }
     }
 
+    /**
+     * @return has given player cards
+     */
     bool hasGivenCards() const {
         return this->isGivenCards;
     }
 
+    /**
+     * Play robot and print what they played.
+     */
     void robotPlayCards() {
         for (int i = 1; i < this->players.size(); i++) {
             this->players[i].autoPlay(this->isNewRound());
@@ -136,10 +180,17 @@ public:
         }
     }
 
+    /**
+     * @return true if this is a new round
+     */
     bool isNewRound() const {
         return this->rounds.size() != this->currentRound;
     }
 
+    /**
+     * Return the last played cards in this round. It will not be empty unless this is a new round.
+     * @return vector of played cards
+     */
     std::vector<PokerCard*> getTrueLastPlayedCards() const {
         auto round = this->rounds.back();
         if (!round.played.empty()) {
@@ -154,6 +205,10 @@ public:
         }
     }
 
+    /**
+     * Return what last player played. It might be empty if last player played nothing.
+     * @return vector of cards
+     */
     std::vector<PokerCard*> getLastPlayedCards() const {
         auto round = this->rounds.back();
         if (!round.played.empty()) {
@@ -163,6 +218,9 @@ public:
         }
     }
 
+    /**
+     * @return string of what last player played
+     */
     std::string getLastPlayedCardsString() const {
         const auto cds = getLastPlayedCards();
         std::string s;
@@ -172,6 +230,12 @@ public:
         return s;
     }
 
+    /**
+     * When player play cards. Check if it is valid and record it.
+     * @param id the player id
+     * @param cds a vector of played cards
+     * @return true if the cards are valid and played
+     */
     bool onPlayerPlayCards(const std::string& id, const std::vector<PokerCard*>& cds) {
         if (!isNewRound()) {
             if (cds.empty()) {
@@ -204,6 +268,9 @@ public:
         return true;
     }
 
+    /**
+     * Try to new a round if all players except the last played player played nothing.
+     */
     void tryNewRound() {
         const auto played = this->rounds.back().played;
         bool canNewRoundOpen = true;
@@ -222,6 +289,9 @@ public:
         }
     }
 
+    /**
+     * New a round and tell all players.
+     */
     void newRound() {
         this->currentRound += 1;
         for (auto & player : this->players) {
@@ -229,6 +299,10 @@ public:
         }
     }
 
+    /**
+     * Check whether a player win depends on if they have played all of their cards and record the winner id.
+     * @return true if a player win
+     */
     bool checkWin() {
         for (auto player : this->players) {
             if (player.getCards().empty()) {
@@ -239,6 +313,9 @@ public:
         return false;
     }
 
+    /**
+     * Congratulation if someone win.
+     */
     void congratulateWin() const {
         for (auto player : this->players) {
             if (player.getId() == this->winner) {
@@ -253,10 +330,18 @@ public:
         }
     }
 
+    /**
+     * Output the information for one whole round.
+     */
     void outputCollectInfo() const {
+        std::cout << "Player number: " << this->players.size() << std::endl;
         std::cout << "The game finished in " << this->currentRound << " rounds" << std::endl;
     }
 
+    /**
+     * Bind some events to a player so that the player can communicate data with the game.
+     * @param player an instance of a player
+     */
     void bindToPlayer(Player& player) {
         player.onPlayCards([this](const std::string& id, const std::vector<PokerCard*>& cds) {
             return this->onPlayerPlayCards(id, cds);
@@ -272,10 +357,17 @@ public:
         });
     }
 
+    /**
+     * Register quit event.
+     * @param q function when quit is called
+     */
     void onQuit(std::function<void()> q) {
         this->handleQuit = std::move(q);
     }
 
+    /**
+     * Quit.
+     */
     void quit() const {
         if (this->handleQuit) {
             this->handleQuit();

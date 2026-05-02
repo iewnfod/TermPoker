@@ -24,6 +24,11 @@ enum class PlayCardType {
 
 class CardUtils {
 public:
+    /**
+     * Get the main value of card type like AAAB or AAABB, which is the card value index of A.
+     * @param c vector of cards for detect
+     * @return main card value index
+     */
     static int getThreePlusXMainValueIndex(const std::vector<PokerCard*>& c) {
         if (c[0]->getValueIndex() == c[1]->getValueIndex() && c[1]->getValueIndex() == c[2]->getValueIndex()) {
             return c.front()->getValueIndex();
@@ -33,6 +38,7 @@ public:
     }
 
     /**
+     * Compare two card groups.
      * @param c1 compare cards 1
      * @param c2 compare cards 2
      * @return true if c1 is larger than c2
@@ -82,108 +88,117 @@ public:
         return false;
     }
 
-        static PlayCardType getPlayCardType(const std::vector<PokerCard*>& cds) {
-            bool isSameValue = true, isStraight = true, isSameType = true;
+    /**
+     * Detect the card type of cards.
+     * @param cds vector of cards for detect
+     * @return card group type
+     */
+    static PlayCardType getPlayCardType(const std::vector<PokerCard*>& cds) {
+        bool isSameValue = true, isStraight = true, isSameType = true;
 
-            for (int i = 0; i < cds.size(); i ++) {
-                if (cds[i]->getValueIndex() != cds.back()->getValueIndex()) {
-                    isSameValue = false;
-                }
-                if (i != cds.size()-1 && cds[i]->getValueIndex()+1 != cds[i+1]->getValueIndex()) {
-                    isStraight = false;
-                }
-                if (cds[i]->getType() != cds.back()->getType()) {
-                    isSameType = false;
-                }
+        for (int i = 0; i < cds.size(); i ++) {
+            if (cds[i]->getValueIndex() != cds.back()->getValueIndex()) {
+                isSameValue = false;
             }
+            if (i != cds.size()-1 && cds[i]->getValueIndex()+1 != cds[i+1]->getValueIndex()) {
+                isStraight = false;
+            }
+            if (cds[i]->getType() != cds.back()->getType()) {
+                isSameType = false;
+            }
+        }
 
-            switch (cds.size()) {
-                case 1:
-                    return PlayCardType::Single;
-                case 2:
-                    if (isSameValue) {
-                        return PlayCardType::Pair;
-                    } else {
-                        return PlayCardType::Invalid;
-                    }
-                case 3:
-                    if (isSameValue) {
-                        return PlayCardType::Triple;
-                    } else {
-                        return PlayCardType::Invalid;
-                    }
-                case 4:
-                    if (isSameValue) {
-                        return PlayCardType::Boom;
-                    } else if (
-                        (cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex())
-                        || (cds[1]->getValueIndex() == cds[2]->getValueIndex() && cds[2]->getValueIndex() == cds[3]->getValueIndex())
-                    ) {
-                        return PlayCardType::ThreePlusOne;
-                    } else {
-                        return PlayCardType::Invalid;
-                    }
-                case 5:
-                    if (isSameValue) {
-                        return PlayCardType::Boom;
-                    } else if (isStraight) {
-                        if (isSameType) {
-                            return PlayCardType::Flush;
-                        } else {
-                            return PlayCardType::Straight;
-                        }
-                    } else {
-                        if (
-                            (cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex()
-                            && cds[3]->getValueIndex() == cds[4]->getValueIndex())
-                            || (cds[2]->getValueIndex() == cds[3]->getValueIndex() && cds[3]->getValueIndex() == cds[4]->getValueIndex()
-                            && cds[0]->getValueIndex() == cds[1]->getValueIndex())
-                        ) {
-                            return PlayCardType::ThreePlusTwo;
-                        } else {
-                            return PlayCardType::Invalid;
-                        }
-                    }
-                case 6:
-                    if (isSameValue) {
-                        return PlayCardType::Boom;
-                    } else if (
-                        cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex()
-                        && cds[3]->getValueIndex() == cds[4]->getValueIndex() && cds[4]->getValueIndex() == cds[5]->getValueIndex()
-                        && cds[0]->getValueIndex()+1 == cds[3]->getValueIndex()
-                    ) {
-                        return PlayCardType::DoubleTriple;
-                    } else if (
-                        cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[2]->getValueIndex() == cds[3]->getValueIndex()
-                        && cds[4]->getValueIndex() == cds[5]->getValueIndex()
-                        && cds[0]->getValueIndex()+1 == cds[2]->getValueIndex()
-                        && cds[2]->getValueIndex()+1 == cds[4]->getValueIndex()
-                    ) {
-                        return PlayCardType::TriplePair;
-                    } else {
-                        return PlayCardType::Invalid;
-                    }
-                default:
+        switch (cds.size()) {
+            case 1:
+                return PlayCardType::Single;
+            case 2:
+                if (isSameValue) {
+                    return PlayCardType::Pair;
+                } else {
                     return PlayCardType::Invalid;
-            }
+                }
+            case 3:
+                if (isSameValue) {
+                    return PlayCardType::Triple;
+                } else {
+                    return PlayCardType::Invalid;
+                }
+            case 4:
+                if (isSameValue) {
+                    return PlayCardType::Boom;
+                } else if (
+                    (cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex())
+                    || (cds[1]->getValueIndex() == cds[2]->getValueIndex() && cds[2]->getValueIndex() == cds[3]->getValueIndex())
+                ) {
+                    return PlayCardType::ThreePlusOne;
+                } else {
+                    return PlayCardType::Invalid;
+                }
+            case 5:
+                if (isSameValue) {
+                    return PlayCardType::Boom;
+                } else if (isStraight) {
+                    if (isSameType) {
+                        return PlayCardType::Flush;
+                    } else {
+                        return PlayCardType::Straight;
+                    }
+                } else {
+                    if (
+                        (cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex()
+                        && cds[3]->getValueIndex() == cds[4]->getValueIndex())
+                        || (cds[2]->getValueIndex() == cds[3]->getValueIndex() && cds[3]->getValueIndex() == cds[4]->getValueIndex()
+                        && cds[0]->getValueIndex() == cds[1]->getValueIndex())
+                    ) {
+                        return PlayCardType::ThreePlusTwo;
+                    } else {
+                        return PlayCardType::Invalid;
+                    }
+                }
+            case 6:
+                if (isSameValue) {
+                    return PlayCardType::Boom;
+                } else if (
+                    cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex()
+                    && cds[3]->getValueIndex() == cds[4]->getValueIndex() && cds[4]->getValueIndex() == cds[5]->getValueIndex()
+                    && cds[0]->getValueIndex()+1 == cds[3]->getValueIndex()
+                ) {
+                    return PlayCardType::DoubleTriple;
+                } else if (
+                    cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[2]->getValueIndex() == cds[3]->getValueIndex()
+                    && cds[4]->getValueIndex() == cds[5]->getValueIndex()
+                    && cds[0]->getValueIndex()+1 == cds[2]->getValueIndex()
+                    && cds[2]->getValueIndex()+1 == cds[4]->getValueIndex()
+                ) {
+                    return PlayCardType::TriplePair;
+                } else {
+                    return PlayCardType::Invalid;
+                }
+            default:
+                return PlayCardType::Invalid;
         }
+    }
 
-        static std::string getPlayCardTypeString(const PlayCardType t) {
-            std::map<PlayCardType, std::string> m = {
-                {PlayCardType::Single, "Single"},
-                {PlayCardType::Pair, "Pair"},
-                {PlayCardType::Triple, "Triple"},
-                {PlayCardType::Boom, "Boom"},
-                {PlayCardType::ThreePlusOne, "Three Plus One"},
-                {PlayCardType::ThreePlusTwo, "Three Plus Two"},
-                {PlayCardType::Straight, "Straight"},
-                {PlayCardType::Flush, "Flush"},
-                {PlayCardType::DoubleTriple, "Double Triple"},
-                {PlayCardType::TriplePair, "Triple Pair"},
-                {PlayCardType::Invalid, "Invalid"},
-            };
-            return m[t];
-        }
+    /**
+     * @param t card group type
+     * @return string name of that type
+     */
+    static std::string getPlayCardTypeString(const PlayCardType t) {
+        std::map<PlayCardType, std::string> m = {
+            {PlayCardType::Single, "Single"},
+            {PlayCardType::Pair, "Pair"},
+            {PlayCardType::Triple, "Triple"},
+            {PlayCardType::Boom, "Boom"},
+            {PlayCardType::ThreePlusOne, "Three Plus One"},
+            {PlayCardType::ThreePlusTwo, "Three Plus Two"},
+            {PlayCardType::Straight, "Straight"},
+            {PlayCardType::Flush, "Flush"},
+            {PlayCardType::DoubleTriple, "Double Triple"},
+            {PlayCardType::TriplePair, "Triple Pair"},
+            {PlayCardType::Invalid, "Invalid"},
+        };
+        return m[t];
+    }
 };
 
 #endif //TERMPOKER_CARDUTILS_H

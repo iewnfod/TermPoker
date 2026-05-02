@@ -10,7 +10,7 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     #endif
 
-    auto game = new Game();
+    const auto game = new Game();
     game->welcome();
 
     return 0;

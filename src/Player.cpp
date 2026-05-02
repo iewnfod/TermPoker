@@ -47,7 +47,7 @@ void Player::printCards() const {
         auto t = card->getTypeString();
         auto v = card->getValueString();
         const int vWidth = static_cast<int>(v.length());
-        const int tsWidth = static_cast<int>(Utils::to_wstring(t).length());
+        const int tsWidth = static_cast<int>(Utils::string2wstring(t).length());
         int widthOffset = 0;
         int numberOffset = 0;
         if (term == "xterm-256color") {
@@ -305,7 +305,7 @@ void Player::printLeftCards() const {
         std::cout << "Remaining cards: " << std::endl;
         std::string head, body, tail;
         for (const auto& c : remainCards) {
-            const int width = static_cast<int>(Utils::to_wstring(c[0]).size());
+            const int width = static_cast<int>(Utils::string2wstring(c[0]).size());
             if (printedColumn + width >= column) {
                 std::cout << head << std::endl << body << std::endl << tail << std::endl;
                 printedColumn = 0;

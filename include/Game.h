@@ -28,6 +28,9 @@ class Game {
     Player *player{};
     Store store = Store();
 
+    /**
+     * @return map of all menus, from enum item to string
+     */
     static std::map<GameMenu, std::string> getAllMenu() {
         std::map<GameMenu, std::string> menuMap = {
             {GameMenu::PlayNow, "Play Now"},
@@ -41,6 +44,9 @@ class Game {
         return menuMap;
     }
 
+    /**
+     * @return a map that defined the relation of submenu
+     */
     static std::map<GameMenu, std::vector<GameMenu>> getSubMenuRelations() {
         std::map<GameMenu, std::vector<GameMenu>> subMenuMap = {
             {GameMenu::PlayNow, std::vector<GameMenu>{
@@ -51,11 +57,19 @@ class Game {
         return subMenuMap;
     }
 
+    /**
+     * Get game menu item name in string.
+     * @param m game menu item
+     * @return string of that enum item
+     */
     static std::string getMenuString(GameMenu m) {
         const auto allMenu = getAllMenu();
         return allMenu.at(m);
     }
 
+    /**
+     * Move cursor to last menu item.
+     */
     void menuMoveUp() {
         const auto allMenu = getAllMenu();
         auto crt = allMenu.find(this->menu);
@@ -65,6 +79,9 @@ class Game {
         }
     }
 
+    /**
+     * Move cursor to next menu item.
+     */
     void menuMoveDown() {
         const auto allMenu = getAllMenu();
         auto crt = allMenu.find(this->menu);
@@ -74,7 +91,14 @@ class Game {
         }
     }
 
+    /**
+     * Print menu to terminal.
+     */
     void printMenu() const;
+
+    /**
+     * Erase printed menu for next print.
+     */
     static void clearMenu();
 
 public:
@@ -85,13 +109,32 @@ public:
         });
     };
 
+    /**
+     * Save data to store.
+     */
     void save();
+
+    /**
+     * Load data from store.
+     */
     void load();
+
+    /**
+     * Exit game.
+     */
     void quit() {
         std::cout << "Quit!" << std::endl;
         this->quitFlag = true;
     }
+
+    /**
+     * Mainloop of the game.
+     */
     void mainloop();
+
+    /**
+     * Print welcome menu of the game and automatically run mainloop.
+     */
     void welcome();
 };
 

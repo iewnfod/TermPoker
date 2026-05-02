@@ -40,8 +40,15 @@ class PokerCard {
     POKER_CARD_VALUE value;
     POKER_CARD_TYPE type;
 public:
+    /**
+     * @param v card value
+     * @param t card type
+     */
     PokerCard(const POKER_CARD_VALUE v, const POKER_CARD_TYPE t): value(v), type(t) {}
 
+    /**
+     * @param s a string in format of <type>|<value>
+     */
     explicit PokerCard(const std::string& s) {
         const auto sep = s.find('|');
         if (sep != std::string::npos) {
@@ -55,9 +62,20 @@ public:
         }
     }
 
+    /**
+     * @return value of this card
+     */
     POKER_CARD_VALUE getValue() const {return value;}
+
+    /**
+     * @return type of this card
+     */
     POKER_CARD_TYPE getType() const {return type;}
 
+    /**
+     * Set the card type from string.
+     * @param t type in string
+     */
     void setTypeByString(const std::string &t) {
         if (t == "clubs") {
             this->type = POKER_CARD_TYPE::Clubs;
@@ -74,6 +92,10 @@ public:
         }
     }
 
+    /**
+     * Set the card value from string.
+     * @param v value in string
+     */
     void setValueByString(const std::string &v) {
         if (v == "3") {
             this->value = POKER_CARD_VALUE::N3;
@@ -110,6 +132,10 @@ public:
         }
     }
 
+    /**
+     * Get the string of a card. This function should not be used for print, it is used for generate string to store.
+     * @return string in format <type>|<value>
+     */
     std::string toString() const {
         std::string s;
         switch (this->type) {
@@ -134,6 +160,10 @@ public:
         return s + "|" + getValueString();
     }
 
+    /**
+     * This function's return is not supported for parse string format.
+     * @return card type in string
+     */
     std::string getTypeString() const {
         switch (this->type) {
             case POKER_CARD_TYPE::Clubs:
@@ -152,11 +182,18 @@ public:
         return "";
     }
 
+    /**
+     * Get the value index of the card in number for compare.
+     * @return value index
+     */
     int getValueIndex() const {
         const auto indexMap = getPokerCardValueIndex();
         return indexMap.at(value);
     }
 
+    /**
+     * @return card value in string
+     */
     std::string getValueString() const {
         switch (this->value) {
             case POKER_CARD_VALUE::N3:
