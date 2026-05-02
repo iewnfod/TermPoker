@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <sstream>
+#include <comcat.h>
 
 int Utils::getch() {
     return _getch();
@@ -39,6 +40,13 @@ std::string Utils::getHomePath() {
 
 char Utils::getPathSeparator() {
     return '\\';
+}
+
+std::string Utils::wstring2string(const std::wstring& wstr) {
+    const int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
+    std::string result(len, '\0');
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), &result[0], len, nullptr, nullptr);
+    return result;
 }
 
 #else
@@ -88,5 +96,16 @@ std::string Utils::getHomePath() {
 
 char Utils::getPathSeparator() {
     return '/';
+}
+
+std::string Utils::wstring2string(const std::wstring& wstr) {
+    std::mbstate_t state = std::mbstate_t();
+    size_t len = std::wcsrtombs(nullptr, &wstr.c_str(), 0, &state);
+    if (len == static_cast<size_t>(-1)) {
+        return "";
+    }
+    std::string result(len, '\0');
+    std::wcsrtombs(&result[0], &wstr.c_str(), len, &state);
+    return result;
 }
 #endif

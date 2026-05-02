@@ -10,9 +10,6 @@
 #include <random>
 #include <sstream>
 #include <vector>
-#ifdef WIN32
-#include <comcat.h>
-#endif
 
 enum class TerminalColor {
     Dark,
@@ -183,19 +180,7 @@ public:
      * @param wstr wstring waiting to convert
      * @return wstr in string
      */
-    static std::string wstring2string(const std::wstring& wstr) {
-        std::string res;
-        const int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
-        if (len <= 0){
-            return res;
-        }
-        const auto buffer = new char[len + 1];
-        WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), buffer, len, nullptr, nullptr);
-        buffer[len] = '\0';
-        res.append(buffer);
-        delete[] buffer;
-        return res;
-    }
+    static std::string wstring2string(const std::wstring& wstr);
 
     /**
      * The title would be same as the link.
