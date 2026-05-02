@@ -251,7 +251,7 @@ public:
             }
         }
         if (!isNewRound()) {
-            const auto lastPlayedCards = this->getLastPlayedCards();
+            const auto lastPlayedCards = this->getTrueLastPlayedCards();
             if (!CardUtils::compareCards(cds, lastPlayedCards)) {
                 return false;
             } else {
