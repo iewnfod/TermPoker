@@ -184,7 +184,7 @@ public:
      * @return true if this is a new round
      */
     bool isNewRound() const {
-        return this->rounds.size() != this->currentRound;
+        return this->rounds.size()+1 == this->currentRound;
     }
 
     /**
@@ -237,12 +237,16 @@ public:
      * @return true if the cards are valid and played
      */
     bool onPlayerPlayCards(const std::string& id, const std::vector<PokerCard*>& cds) {
-        if (!isNewRound()) {
-            if (cds.empty()) {
+        if (cds.empty()) {
+            if (!isNewRound()) {
                 this->rounds.back().played.push_back({id, {}});
                 this->tryNewRound();
                 return true;
+            } else {
+                return false;
             }
+        }
+        if (!isNewRound()) {
             const auto lastPlayedCards = this->getLastPlayedCards();
             if (!CardUtils::compareCards(cds, lastPlayedCards)) {
                 return false;

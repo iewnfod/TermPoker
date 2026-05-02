@@ -180,19 +180,21 @@ void Player::printCards() const {
         << body2 << std::endl
         << body3 << std::endl
         << tail << std::endl
-        << "Card type: " << CardUtils::getPlayCardTypeString(CardUtils::getPlayCardType(this->selectedCards))
-        << " " << hint << std::endl;
+        << "Card type: " << CardUtils::getPlayCardTypeString(CardUtils::getPlayCardType(this->selectedCards)) << std::endl
+        << Utils::getFgColor(TerminalColor::Red) << hint << Utils::getResetColor() << std::endl;
 }
 
 std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
-    std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, <enter↩️> to confirm and <q> to exit this game." << std::endl;
+    std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, <enter↩️> to confirm, <s> to skip, and <q> to exit this game." << std::endl;
     std::cout << "Round " << this->roundNumber << std::endl;
     this->hint.clear();
     this->printLeftCards();
 
     sortCards();
-    cardMoveRight();
+    if (this->selectedCard == nullptr) {
+        cardMoveRight();
+    }
 
     int ch = 0;
     while (true) {
@@ -232,23 +234,26 @@ std::vector<PokerCard*> Player::waitForUserInput() {
             this->quit();
             break;
         }
+        else if (ch == 's') {
+            if (this->playCards({})) {
+                break;
+            } else {
+                this->hint = "At least play one cards in a new round";
+            }
+        }
         else if (ch == '\n' || ch == '\r') {
             if (checkIsSelectedCardTypeValid()) {
                 if (this->playSelectedCards()) {
                     break;
                 } else {
-                    this->hint = Utils::getFgColor(TerminalColor::Red);
-                    this->hint += "Selected cards are not large enough or have different card type";
-                    this->hint += Utils::getResetColor();
+                    this->hint = "Selected cards are not large enough or have different card type";
                 }
             } else {
-                this->hint = Utils::getFgColor(TerminalColor::Red);
                 if (this->selectedCards.empty()) {
-                    this->hint += "Select at least one card";
+                    this->hint = "Select at least one card";
                 } else {
-                    this->hint += "Invalid card type";
+                    this->hint = "Invalid card type";
                 }
-                this->hint += Utils::getResetColor();
             }
         }
 
@@ -258,7 +263,7 @@ std::vector<PokerCard*> Player::waitForUserInput() {
     return this->selectedCards;
 }
 
-void Player::autoPlay(bool isNewRound) {
+void Player::autoPlay(const bool isNewRound) {
     this->sortCards();
     if (isNewRound) {
         this->playCards({this->cards.front()});
