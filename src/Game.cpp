@@ -129,16 +129,17 @@ void Game::welcome() {
 
 void Game::mainloop() {
     GameMenu action = this->menu;
+    auto difficulty = GameDifficulty::Easy;
     if (this->menu == GameMenu::SubDifficultyEasy) {
-        deck->setDifficulty(GameDifficulty::Easy);
+        difficulty = GameDifficulty::Easy;
         action = GameMenu::PlayNow;
     }
     if (this->menu == GameMenu::SubDifficultyMedium) {
-        deck->setDifficulty(GameDifficulty::Medium);
+        difficulty = GameDifficulty::Medium;
         action = GameMenu::PlayNow;
     }
     if (this->menu == GameMenu::SubDifficultyHard) {
-        deck->setDifficulty(GameDifficulty::Hard);
+        difficulty = GameDifficulty::Hard;
         action = GameMenu::PlayNow;
     }
     if (action == GameMenu::Quit || this->quitFlag) {
@@ -148,6 +149,7 @@ void Game::mainloop() {
     } else if (action == GameMenu::PlayNow) {
         this->deck = new Deck(2);
         this->player = this->deck->autoGeneratePlayers();
+        this->deck->setDifficulty(difficulty);
         this->deck->givePlayerCards();
         while (this->deck->getWinner().empty()) {
             this->player->waitForUserInput();

@@ -341,7 +341,16 @@ public:
      * Output the information for one whole round.
      */
     void outputCollectInfo() const {
-        std::cout << "This game finished in " << this->currentRound << " rounds." << std::endl;
+        std::string level;
+        switch (this->difficulty) {
+            case GameDifficulty::Easy:
+                level = "easy"; break;
+            case GameDifficulty::Medium:
+                level = "medium"; break;
+            case GameDifficulty::Hard:
+                level = "hard"; break;
+        }
+        std::cout << "This " << level << " mode game finished in " << this->currentRound << " rounds." << std::endl;
         std::cout << "There are total " << this->players.size() << " players in this game:" << std::endl;
         for (int i = 0; i < this->players.size(); i++) {
             std::string name = "Robot";

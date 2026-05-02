@@ -186,7 +186,7 @@ public:
     /**
      * @param diff game difficulty
      */
-    void setGameDifficulty(GameDifficulty diff) {
+    void setGameDifficulty(const GameDifficulty diff) {
         difficulty = diff;
     }
 
