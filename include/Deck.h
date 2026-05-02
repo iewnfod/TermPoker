@@ -35,6 +35,7 @@ class Deck {
     std::function<void()> handleQuit;
     std::vector<PlayRound> rounds;
     int currentRound = 1;
+    std::string winner;
 
 public:
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
@@ -97,7 +98,7 @@ public:
     void givePlayerCards() {
         for (int i = 0; i < cards.size(); i += static_cast<int>(this->players.size())) {
             for (int j = 0; j < this->players.size(); j++) {
-                this->players[j].getCard(cards[i+j].get());
+                this->players[j].receiveCard(cards[i+j].get());
             }
         }
         this->isGivenCards = true;
@@ -182,6 +183,10 @@ public:
             }
         }
         this->tryNewRound();
+        if (this->checkWin()) {
+            this->congratulateWin();
+            this->quit();
+        }
         return true;
     }
 
@@ -208,6 +213,34 @@ public:
         for (auto & player : this->players) {
             player.setRoundNumber(currentRound);
         }
+    }
+
+    bool checkWin() {
+        for (auto player : this->players) {
+            if (player.getCards().empty()) {
+                this->winner = player.getId();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void congratulateWin() const {
+        for (auto player : this->players) {
+            if (player.getId() == this->winner) {
+                if (!player.getIsRobot()) {
+                    std::cout << "Congratulation! You win this game!" << std::endl;
+                } else {
+                    std::cout << "You failed the game..." << std::endl;
+                }
+                this->outputCollectInfo();
+                break;
+            }
+        }
+    }
+
+    void outputCollectInfo() const {
+        std::cout << "The game finished in " << this->currentRound << " rounds" << std::endl;
     }
 
     void bindToPlayer(Player& player) {

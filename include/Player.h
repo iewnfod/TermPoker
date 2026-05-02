@@ -87,7 +87,7 @@ public:
         return this->id;
     }
 
-    void getCard(PokerCard* card) {
+    void receiveCard(PokerCard* card) {
         cards.push_back(card);
     }
 
@@ -179,6 +179,10 @@ public:
 
     void setRoundNumber(const int n) {
         this->roundNumber = n;
+    }
+
+    bool getIsRobot() {
+        return this->isRobot;
     }
 };
 
