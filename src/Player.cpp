@@ -180,12 +180,14 @@ void Player::printCards() const {
         << body2 << std::endl
         << body3 << std::endl
         << tail << std::endl
-        << "Card type: " << getPlayCardTypeString(getPlayCardType(this->selectedCards)) << " " << hint << std::endl;
+        << "Card type: " << CardUtils::getPlayCardTypeString(CardUtils::getPlayCardType(this->selectedCards))
+        << " " << hint << std::endl;
 }
 
 std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, <enter↩️> to confirm and <q> to exit this game." << std::endl;
+    std::cout << "Round " << this->roundNumber << std::endl;
     this->hint.clear();
     this->printLeftCards();
 
@@ -232,8 +234,13 @@ std::vector<PokerCard*> Player::waitForUserInput() {
         }
         else if (ch == '\n' || ch == '\r') {
             if (checkIsSelectedCardTypeValid()) {
-                this->playSelectedCards();
-                break;
+                if (this->playSelectedCards()) {
+                    break;
+                } else {
+                    this->hint = Utils::getFgColor(TerminalColor::Red);
+                    this->hint += "Selected cards are not large enough or have different card type";
+                    this->hint += Utils::getResetColor();
+                }
             } else {
                 this->hint = Utils::getFgColor(TerminalColor::Red);
                 if (this->selectedCards.empty()) {
@@ -251,8 +258,23 @@ std::vector<PokerCard*> Player::waitForUserInput() {
     return this->selectedCards;
 }
 
-void Player::autoPlay() {
-    this->playCards({this->cards.front()});
+void Player::autoPlay(bool isNewRound) {
+    this->sortCards();
+    if (isNewRound) {
+        this->playCards({this->cards.front()});
+    } else {
+        const auto lastPlayedCards = this->getLastPlayedCards();
+        const auto t = CardUtils::getPlayCardType(lastPlayedCards);
+        if (t == PlayCardType::Single) {
+            for (auto c : this->cards) {
+                if (CardUtils::compareCards({c}, lastPlayedCards)) {
+                    this->playCards({c});
+                    return;
+                }
+            }
+        }
+        this->playCards({});
+    }
 }
 
 void Player::printLeftCards() const {

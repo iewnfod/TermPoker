@@ -8,6 +8,8 @@
 #include <comcat.h>
 #include <locale>
 #include <iostream>
+#include <random>
+#include <sstream>
 #include <vector>
 
 enum class TerminalColor {
@@ -119,7 +121,7 @@ public:
     }
     static std::string wstring2string(const std::wstring& wstr) {
         std::string res;
-        int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
+        const int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
         if (len <= 0){
             return res;
         }
@@ -137,6 +139,38 @@ public:
 
     static std::string getClickableLink(const std::string& title, const std::string& link) {
         return "\033]8;;" + link + "\033\\" + title + "\033]8;;\033\\";
+    }
+
+    static std::string generateUuidV4() {
+        static std::random_device              rd;
+        static std::mt19937                    gen(rd());
+        static std::uniform_int_distribution<> dis(0, 15);
+        static std::uniform_int_distribution<> dis2(8, 11);
+
+        std::stringstream ss;
+        int i;
+        ss << std::hex;
+        for (i = 0; i < 8; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        for (i = 0; i < 4; i++) {
+            ss << dis(gen);
+        }
+        ss << "-4";
+        for (i = 0; i < 3; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        ss << dis2(gen);
+        for (i = 0; i < 3; i++) {
+            ss << dis(gen);
+        }
+        ss << "-";
+        for (i = 0; i < 12; i++) {
+            ss << dis(gen);
+        };
+        return ss.str();
     }
 };
 

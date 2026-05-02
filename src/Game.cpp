@@ -153,7 +153,7 @@ void Game::mainloop() {
             if (this->quitFlag) {
                 break;
             }
-            std::cout << "You played: " << this->player->getLastPlayedCardsString() << std::endl;
+            std::cout << std::endl << "You played: " << this->deck->getLastPlayedCardsString() << std::endl;
             this->deck->robotPlayCards();
         }
     } else if (action == GameMenu::About) {

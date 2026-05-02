@@ -14,6 +14,16 @@
 #include "Player.h"
 #include "PokerCard.h"
 
+struct PlayCardWithId {
+    std::string id;
+    std::vector<PokerCard*> cards;
+};
+
+struct PlayRound {
+    int round;  // round number
+    std::vector<PlayCardWithId> played;
+};
+
 class Deck {
     std::vector<std::unique_ptr<PokerCard>> cards = {};
     int deckNumber;
@@ -23,7 +33,8 @@ class Deck {
     std::map<POKER_CARD_VALUE, int> leftCards;
     std::vector<POKER_CARD_VALUE> getRemainingCards() const;
     std::function<void()> handleQuit;
-    int currentRound = 0;
+    std::vector<PlayRound> rounds;
+    int currentRound = 1;
 
 public:
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
@@ -37,15 +48,19 @@ public:
             }
         }
     }
+
     ~Deck() {
         this->cards.clear();
     }
+
     int getDeckSize() const {
         return static_cast<int>(this->cards.size());
     }
+
     void addPlayer(const Player& player) {
         this->players.push_back(player);
     }
+
     Player* autoGeneratePlayers() {
         for (int i = 0; i < 4; i++) {
             const auto player = new Player(i != 0);
@@ -55,6 +70,7 @@ public:
         }
         return &this->players[0];
     }
+
     void init() {
         for (int i = 0; i < this->deckNumber; i ++) {
             for (const auto poker_card_value_pair : getPokerCardValueIndex()) {
@@ -71,11 +87,13 @@ public:
             }
         }
     }
+
     void shuffle() {
         static std::random_device rd;
         static std::mt19937 g(rd());
         std::shuffle(cards.begin(), cards.end(), g);
     }
+
     void givePlayerCards() {
         for (int i = 0; i < cards.size(); i += static_cast<int>(this->players.size())) {
             for (int j = 0; j < this->players.size(); j++) {
@@ -84,11 +102,13 @@ public:
         }
         this->isGivenCards = true;
     }
+
     void printAllCards() const {
         for (auto &card: this->cards) {
             std::cout << card->getTypeString() << " " << card->getValueString() << std::endl;
         }
     }
+
     void printCardsByPlayer() {
         for (int i = 0; i < this->players.size(); i++) {
             std::cout << "Player " << i+1 << std::endl;
@@ -96,34 +116,103 @@ public:
             this->players[i].printCards();
         }
     }
+
     void setDifficulty(const GameDifficulty d) {
         this->difficulty = d;
         for (auto & player : this->players) {
             player.setGameDifficulty(d);
         }
     }
+
     bool hasGivenCards() const {
         return this->isGivenCards;
     }
+
     void robotPlayCards() {
         for (int i = 1; i < this->players.size(); i++) {
-            this->players[i].autoPlay();
-            if (this->players[i].getIsTeamWithPlayer()) {
-                std::cout << "Teammate ";
-            } else {
-                std::cout << "Opponent ";
+            this->players[i].autoPlay(this->isNewRound());
+            std::cout << "Robot " << i+1 << " played: " << this->getLastPlayedCardsString() << std::endl;
+        }
+    }
+
+    bool isNewRound() const {
+        return this->rounds.size() != this->currentRound;
+    }
+
+    std::vector<PokerCard*> getLastPlayedCards() const {
+        auto round = this->rounds.back();
+        if (!round.played.empty()) {
+            return round.played.back().cards;
+        } else {
+            return {};
+        }
+    }
+
+    std::string getLastPlayedCardsString() const {
+        const auto cds = getLastPlayedCards();
+        std::string s;
+        for (const auto c : cds) {
+            s += c->getValueString() + c->getTypeString() + " ";
+        }
+        return s;
+    }
+
+    bool onPlayerPlayCards(const std::string& id, const std::vector<PokerCard*>& cds) {
+        if (!isNewRound()) {
+            if (cds.empty()) {
+                this->rounds.back().played.push_back({id, {}});
+                this->tryNewRound();
+                return true;
             }
-            std::cout << "Robot " << i+1 << " played: " << this->players[i].getLastPlayedCardsString() << std::endl;
+            const auto lastPlayedCards = this->getLastPlayedCards();
+            if (!CardUtils::compareCards(cds, lastPlayedCards)) {
+                return false;
+            } else {
+                this->rounds.back().played.push_back({id, cds});
+            }
+        } else {
+            PlayRound round = {currentRound, {}};
+            round.played.push_back({id, cds});
+            this->rounds.push_back(round);
+        }
+        for (const auto c : cds) {
+            const auto cardValue = c->getValue();
+            if (leftCards.find(cardValue) != leftCards.end()) {
+                leftCards[cardValue]--;
+            }
+        }
+        this->tryNewRound();
+        return true;
+    }
+
+    void tryNewRound() {
+        const auto played = this->rounds.back().played;
+        bool canNewRoundOpen = true;
+        if (played.size() >= this->players.size()) {
+            for (int i = 1; i < this->players.size(); i++) {
+                if (!played[played.size()-i].cards.empty()) {
+                    canNewRoundOpen = false;
+                    break;
+                }
+            }
+        } else {
+            canNewRoundOpen = false;
+        }
+        if (canNewRoundOpen) {
+            this->newRound();
         }
     }
-    void onPlayerPlayedCard(const POKER_CARD_VALUE cardValue) {
-        if (leftCards.find(cardValue) != leftCards.end()) {
-            leftCards[cardValue]--;
+
+    void newRound() {
+        this->currentRound += 1;
+        for (auto & player : this->players) {
+            player.setRoundNumber(currentRound);
         }
     }
+
     void bindToPlayer(Player& player) {
-        player.onPlayCard([this](const POKER_CARD_VALUE card) {
-            this->onPlayerPlayedCard(card);
+        player.onPlayCards([this](const std::string& id, const std::vector<PokerCard*>& cds) {
+            return this->onPlayerPlayCards(id, cds);
         });
         player.onPrintLeftCard([this]() {
             return this->leftCards;
@@ -131,10 +220,15 @@ public:
         player.onQuit([this]() {
             this->quit();
         });
+        player.onGetLastPlayedCards([this]() {
+            return this->getLastPlayedCards();
+        });
     }
+
     void onQuit(std::function<void()> q) {
         this->handleQuit = std::move(q);
     }
+
     void quit() const {
         if (this->handleQuit) {
             this->handleQuit();

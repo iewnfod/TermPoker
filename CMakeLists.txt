@@ -13,6 +13,7 @@ set(SOURCE_FILES
         src/Utils.cpp
         src/Player.cpp
         include/store.h
+        include/CardUtils.h
 )
 
 add_executable(termpoker ${SOURCE_FILES})
