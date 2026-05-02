@@ -143,7 +143,12 @@ public:
     std::vector<PokerCard*> getLastPlayedCards() const {
         auto round = this->rounds.back();
         if (!round.played.empty()) {
-            return round.played.back().cards;
+            for (int i = static_cast<int>(round.played.size())-1; i >= 0; i --) {
+                if (!round.played[i].cards.empty()) {
+                    return round.played[i].cards;
+                }
+            }
+            return {};
         } else {
             return {};
         }
