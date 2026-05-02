@@ -24,6 +24,21 @@ enum class PlayCardType {
 class CardUtils {
 public:
     /**
+     * Sort cards from small to large, not considering color.
+     */
+    static void sortCards(std::vector<PokerCard*>& cards) {
+        std::sort(cards.begin(), cards.end(), [](const PokerCard* c1, const PokerCard* c2) {
+            if (c1->getValueIndex() < c2->getValueIndex()) {
+                return true;
+            } else if (c1->getValueIndex() == c2->getValueIndex()) {
+                return c1->getTypeIndex() < c2->getTypeIndex();
+            } else {
+                return false;
+            }
+        });
+    }
+
+    /**
      * Get the main value of card type like AAAB or AAABB, which is the card value index of A.
      * @param c vector of cards for detect
      * @return main card value index
@@ -87,10 +102,12 @@ public:
 
     /**
      * Detect the card type of cards.
-     * @param cds vector of cards for detect
+     * @param cards vector of cards for detect
      * @return card group type
      */
-    static PlayCardType getPlayCardType(const std::vector<PokerCard*>& cds) {
+    static PlayCardType getPlayCardType(const std::vector<PokerCard*>& cards) {
+        auto cds = cards;
+        sortCards(cds);
         bool isSameValue = true, isStraight = true, isSameType = true;
 
         for (int i = 0; i < cds.size(); i ++) {

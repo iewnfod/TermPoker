@@ -165,18 +165,6 @@ public:
     }
 
     /**
-     * Sort cards from small to large, not considering color.
-     */
-    void sortCards() {
-        std::sort(cards.begin(), cards.end(), [](const PokerCard* c1, const PokerCard* c2) {
-            if (c1->getValueIndex() < c2->getValueIndex()) {
-                return true;
-            }
-            return false;
-        });
-    }
-
-    /**
      * Print all available cards in a pretty way.
      */
     void printCards() const;
@@ -276,6 +264,13 @@ public:
      */
     void setRoundNumber(const int n) {
         this->roundNumber = n;
+    }
+
+    /**
+     * Sort cards for this player.
+     */
+    void sortCards() {
+        CardUtils::sortCards(this->cards);
     }
 };
 

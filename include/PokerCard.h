@@ -231,6 +231,23 @@ public:
         }
         return "";
     }
+
+    int getTypeIndex() const {
+        switch (this->type) {
+            case POKER_CARD_TYPE::Diamonds:
+                return 1;
+            case POKER_CARD_TYPE::Clubs:
+                return 2;
+            case POKER_CARD_TYPE::Hearts:
+                return 3;
+            case POKER_CARD_TYPE::Spades:
+                return 4;
+            case POKER_CARD_TYPE::Joker:
+                return 5;
+            default:
+                return 0;
+        }
+    }
 };
 
 #endif //TERMPOKER_POKERCARD_H

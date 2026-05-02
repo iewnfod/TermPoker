@@ -191,7 +191,7 @@ std::vector<PokerCard*> Player::waitForUserInput() {
     this->hint.clear();
     this->printLeftCards();
 
-    sortCards();
+    CardUtils::sortCards(this->cards);
     if (this->selectedCard == nullptr) {
         cardMoveRight();
     }
@@ -264,7 +264,7 @@ std::vector<PokerCard*> Player::waitForUserInput() {
 }
 
 void Player::autoPlay(const bool isNewRound) {
-    this->sortCards();
+    CardUtils::sortCards(this->cards);
     if (isNewRound) {
         this->playCards({this->cards.front()});
     } else {
