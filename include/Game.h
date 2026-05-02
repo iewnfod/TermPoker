@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Deck.h"
+#include "Store.h"
 
 enum class GameMenu {
     PlayNow,
@@ -16,6 +17,7 @@ enum class GameMenu {
     SubDifficultyMedium,
     SubDifficultyHard,
     CheckHistory,
+    About,
     Quit,
 };
 
@@ -24,6 +26,7 @@ class Game {
     bool quitFlag = false;
     Deck *deck;
     Player *player{};
+    Store store = Store();
 
     static std::map<GameMenu, std::string> getAllMenu() {
         std::map<GameMenu, std::string> menuMap = {
@@ -32,6 +35,7 @@ class Game {
             {GameMenu::SubDifficultyMedium, "Medium Mode"},
             {GameMenu::SubDifficultyHard, "Hard Mode"},
             {GameMenu::CheckHistory, "Check History"},
+            {GameMenu::About, "About"},
             {GameMenu::Quit, "Quit"},
         };
         return menuMap;

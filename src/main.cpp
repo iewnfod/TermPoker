@@ -12,7 +12,6 @@ int main() {
 
     auto game = new Game();
     game->welcome();
-    game->mainloop();
 
     return 0;
 }

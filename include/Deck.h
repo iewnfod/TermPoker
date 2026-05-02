@@ -23,6 +23,8 @@ class Deck {
     std::map<POKER_CARD_VALUE, int> leftCards;
     std::vector<POKER_CARD_VALUE> getRemainingCards() const;
     std::function<void()> handleQuit;
+    int currentRound = 0;
+
 public:
     explicit Deck(const int deckNumber): deckNumber(deckNumber) {
         this->init();

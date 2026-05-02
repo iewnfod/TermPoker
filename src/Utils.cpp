@@ -7,19 +7,49 @@
 #ifdef _WIN32
 #include <conio.h>
 #include <windows.h>
+#include <shlobj.h>
+#include <sstream>
+
+int Utils::getch() {
+    return _getch();
+}
+
+int Utils::getTermColumn() {
+    try {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        const int columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        return columns;
+    } catch (std::exception& e) {
+        return 80;
+    }
+}
+
+std::string Utils::getHomePath() {
+    char homePath[MAX_PATH];
+    const HRESULT hr = SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, homePath);
+
+    if (SUCCEEDED(hr)) {
+        return std::string(homePath);
+    } else {
+        const char* home = getenv("USERPROFILE");
+        return home;
+    }
+}
+
+char Utils::getPathSeparator() {
+    return '\\';
+}
+
 #else
 #include <termios.h>
 #include <unistd.h>
 #include <cstdio>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <cstdlib>
-#endif
+#include <pwd.h>
 
-#ifdef _WIN32
-int Utils::getch() {
-    return _getch();
-}
-#else
 int Utils::getch() {
     struct termios oldt, newt;
     int ch;
@@ -31,20 +61,7 @@ int Utils::getch() {
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     return ch;
 }
-#endif
 
-#ifdef _WIN32
-int Utils::getTermColumn() {
-    try {
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-        const int columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        return columns;
-    } catch (std::exception& e) {
-        return 80;
-    }
-}
-#else
 int Utils::getTermColumn() {
     struct winsize w;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0) {
@@ -58,5 +75,18 @@ int Utils::getTermColumn() {
         }
     }
     return 80;
+}
+
+std::string Utils::getHomePath() {
+    const char* home = getenv("HOME");
+    if (!home) {
+        struct passwd* pw = getpwuid(getuid());
+        home = pw->pw_dir;
+    }
+    return home;
+}
+
+char Utils::getPathSeparator() {
+    return '/';
 }
 #endif

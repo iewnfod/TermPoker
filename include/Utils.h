@@ -5,8 +5,10 @@
 #ifndef TERMPOKER_UTILS_H
 #define TERMPOKER_UTILS_H
 #include <codecvt>
+#include <comcat.h>
 #include <locale>
 #include <iostream>
+#include <vector>
 
 enum class TerminalColor {
     Dark,
@@ -100,6 +102,42 @@ public:
 
     static int getch();
     static int getTermColumn();
+    static std::string getHomePath();
+    static char getPathSeparator();
+    static std::string joinPath(const std::vector<std::string>& parts) {
+        std::string result;
+        const auto sep = getPathSeparator();
+        for (int i = 0; i < parts.size(); i++) {
+            const auto& p = parts[i];
+            if (p.back() == sep || i == parts.size() - 1) {
+                result += p;
+            } else {
+                result += p + sep;
+            }
+        }
+        return result;
+    }
+    static std::string wstring2string(const std::wstring& wstr) {
+        std::string res;
+        int len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), nullptr, 0, nullptr, nullptr);
+        if (len <= 0){
+            return res;
+        }
+        const auto buffer = new char[len + 1];
+        WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), static_cast<int>(wstr.size()), buffer, len, nullptr, nullptr);
+        buffer[len] = '\0';
+        res.append(buffer);
+        delete[] buffer;
+        return res;
+    }
+
+    static std::string getClickableLink(const std::string& link) {
+        return getClickableLink(link, link);
+    }
+
+    static std::string getClickableLink(const std::string& title, const std::string& link) {
+        return "\033]8;;" + link + "\033\\" + title + "\033]8;;\033\\";
+    }
 };
 
 #endif //TERMPOKER_UTILS_H

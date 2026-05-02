@@ -122,7 +122,8 @@ void Game::welcome() {
     if (this->menu == GameMenu::Quit) {
         this->quit();
     } else {
-        std::cout << getMenuString(this->menu) << std::endl;
+        std::cout << std::endl;
+        this->mainloop();
     }
 }
 
@@ -155,6 +156,14 @@ void Game::mainloop() {
             std::cout << "You played: " << this->player->getLastPlayedCardsString() << std::endl;
             this->deck->robotPlayCards();
         }
+    } else if (action == GameMenu::About) {
+        std::cout << "About TermPoker" << std::endl;
+        std::cout << "Repository: " << Utils::getClickableLink("https://github.com/iewnfod/TermPoker") << std::endl;
+        std::cout << "Author: " << Utils::getClickableLink("Iewnfod", "https://github.com/iewnfod") << ", " << Utils::getClickableLink("Andy", "https://github.com/Andymaster007") << std::endl;
+        std::cout << "Data Storage Path: " << this->store.getBasePath() << std::endl;
+        std::cout << "────────────────────────────────────────────" << std::endl;
+        std::cout << "Press any key to continue..." << std::endl;
+        Utils::getch();
     }
 
     this->welcome();
