@@ -91,6 +91,19 @@ class Player {
      * Print remained cards for easy mode.
      */
     void printLeftCards() const;
+
+    /**
+     * For robots, automatically play cards in easy mode.
+     * @param isNewRound if this is a new round
+     */
+    void autoPlayEasy(bool isNewRound);
+
+    /**
+     * For robots, automatically play cards in medium & hard mode.
+     * @param isNewRound if this is a new round
+     */
+    void autoPlayHard(bool isNewRound);
+
 public:
     Player() = default;
 
@@ -216,7 +229,19 @@ public:
      * For robots, automatically play cards.
      * @param isNewRound if this is a new round
      */
-    void autoPlay(bool isNewRound);
+    void autoPlay(const bool isNewRound) {
+        switch (this->difficulty) {
+            case GameDifficulty::Easy:
+                this->autoPlayEasy(isNewRound);
+                break;
+            case GameDifficulty::Medium:
+                this->autoPlayHard(isNewRound);
+                break;
+            case GameDifficulty::Hard:
+                this->autoPlayHard(isNewRound);
+                break;
+        }
+    };
 
     /**
      * Register the event which will be called when the player played cards.

@@ -36,6 +36,14 @@ inline std::map<POKER_CARD_VALUE, int> getPokerCardValueIndex() {
     return POKER_CARD_VALUE_INDEX;
 }
 
+inline std::map<int, POKER_CARD_VALUE> getInversePokerCardValueIndex() {
+    std::map<int, POKER_CARD_VALUE> m;
+    for (auto p: getPokerCardValueIndex()) {
+        m[p.second] = p.first;
+    }
+    return m;
+}
+
 class PokerCard {
     POKER_CARD_VALUE value;
     POKER_CARD_TYPE type;

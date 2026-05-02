@@ -14,6 +14,9 @@ set(SOURCE_FILES
         src/Player.cpp
         include/store.h
         include/CardUtils.h
+        src/Robot.cpp
+        include/Robot.h
+        src/AutoPlay.cpp
 )
 
 add_executable(termpoker ${SOURCE_FILES})
