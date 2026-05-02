@@ -5,12 +5,14 @@
 #ifndef TERMPOKER_UTILS_H
 #define TERMPOKER_UTILS_H
 #include <codecvt>
-#include <comcat.h>
 #include <locale>
 #include <iostream>
 #include <random>
 #include <sstream>
 #include <vector>
+#ifdef WIN32
+#include <comcat.h>
+#endif
 
 enum class TerminalColor {
     Dark,
