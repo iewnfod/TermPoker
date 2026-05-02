@@ -1,0 +1,28 @@
+name: Makefile Build Test
+
+on:
+    workflow_dispatch:
+    push:
+    pull_request:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install build tools
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y build-essential
+
+            - name: Clean previous builds
+              run: make clean
+
+            - name: Compile project
+              run: make
+
+            - name: (Optional) Verify executable exists
+              run: test -f bin/termpoker
