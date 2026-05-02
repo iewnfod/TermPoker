@@ -59,6 +59,9 @@ public:
      */
     static bool compareCards(const std::vector<PokerCard*>& c1, const std::vector<PokerCard*>& c2) {
         const auto c1Type = getPlayCardType(c1), c2Type = getPlayCardType(c2);
+        if (c1Type == PlayCardType::Invalid || c2Type == PlayCardType::Invalid) {
+            return false;
+        }
         if (c1Type == PlayCardType::Boom && c2Type != PlayCardType::Boom) {
             return true;
         }
