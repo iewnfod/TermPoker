@@ -267,7 +267,91 @@ std::vector<PokerCard*> Player::waitForUserInput() {
 void Player::autoPlay(const bool isNewRound) {
     sortCards();
     if (isNewRound) {
-        this->playCards({this->cards.front()});
+
+        this->sortCards();
+        int minRank = this->cards.front()->getValueIndex();
+
+        int minRankCount = 0;
+        for (auto* c : this->cards) {
+            if (c->getValueIndex() == minRank) {
+                ++minRankCount;
+            } else {
+                break;
+            }
+        }
+
+        std::vector<PokerCard*> firstPlay;
+
+        if (minRankCount >= 3) {
+
+            for (auto* c : this->cards) {
+                if (c->getValueIndex() == minRank && firstPlay.size() < 3) {
+                    firstPlay.push_back(c);
+                }
+            }
+
+            std::map<int, int> rankCnt;
+            for (auto* c : this->cards) rankCnt[c->getValueIndex()]++;
+            int pairRank = -1;
+            for (auto& it : rankCnt) {
+                if (it.second >= 2 && it.first != minRank) {
+                    pairRank = it.first;
+                    break;
+                }
+            }
+            if (pairRank != -1) {
+
+                for (auto* c : this->cards) {
+                    if (c->getValueIndex() == pairRank && firstPlay.size() < 5) {
+                        firstPlay.push_back(c);
+                    }
+                }
+            } else {
+
+                firstPlay.clear();
+            }
+        }
+
+        if (firstPlay.empty() && minRankCount >= 2) {
+            for (auto* c : this->cards) {
+                if (c->getValueIndex() == minRank && firstPlay.size() < 2) {
+                    firstPlay.push_back(c);
+                }
+            }
+        }
+
+        if (firstPlay.empty()) {
+
+            std::set<int> availableRanks;
+            for (auto* c : this->cards) {
+                int r = c->getValueIndex();
+                if (r <= 13) availableRanks.insert(r);
+            }
+
+            int straightLen = 1;
+            int cur = minRank;
+            while (availableRanks.count(cur + 1)) {
+                ++cur;
+                ++straightLen;
+            }
+            if (straightLen >= 5) {
+
+                for (int r = minRank; r <= minRank + straightLen - 1; ++r) {
+                    for (auto* c : this->cards) {
+                        if (c->getValueIndex() == r) {
+                            firstPlay.push_back(c);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (firstPlay.empty()) {
+            firstPlay = {this->cards.front()};
+        }
+
+        this->playCards(firstPlay);
         return;
     }
 
@@ -374,7 +458,7 @@ void Player::autoPlay(const bool isNewRound) {
             std::set<int> uniqueRanks;
             for (auto* c : this->cards) {
                 int idx = c->getValueIndex();
-                if (idx <= 13) // 3~2，排除大小王（15,16）
+                if (idx <= 13)
                     uniqueRanks.insert(idx);
             }
             std::vector<int> sortedRanks(uniqueRanks.begin(), uniqueRanks.end());
