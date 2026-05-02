@@ -13,7 +13,6 @@ enum class PlayCardType {
     Pair,  // 对子
     Triple,  // 三张一样的
     Boom,  // 炸弹
-    ThreePlusOne,  // 三带一
     ThreePlusTwo,  // 三带二
     Straight,  // 顺子
     Flush,  // 同花顺
@@ -78,8 +77,6 @@ public:
                 } else {
                     return false;
                 }
-            case PlayCardType::ThreePlusOne:
-                return getThreePlusXMainValueIndex(c1) > getThreePlusXMainValueIndex(c2);
             case PlayCardType::ThreePlusTwo:
                 return getThreePlusXMainValueIndex(c1) > getThreePlusXMainValueIndex(c2);
             case PlayCardType::Invalid:
@@ -126,11 +123,6 @@ public:
             case 4:
                 if (isSameValue) {
                     return PlayCardType::Boom;
-                } else if (
-                    (cds[0]->getValueIndex() == cds[1]->getValueIndex() && cds[1]->getValueIndex() == cds[2]->getValueIndex())
-                    || (cds[1]->getValueIndex() == cds[2]->getValueIndex() && cds[2]->getValueIndex() == cds[3]->getValueIndex())
-                ) {
-                    return PlayCardType::ThreePlusOne;
                 } else {
                     return PlayCardType::Invalid;
                 }
@@ -189,7 +181,6 @@ public:
             {PlayCardType::Pair, "Pair"},
             {PlayCardType::Triple, "Triple"},
             {PlayCardType::Boom, "Boom"},
-            {PlayCardType::ThreePlusOne, "Three Plus One"},
             {PlayCardType::ThreePlusTwo, "Three Plus Two"},
             {PlayCardType::Straight, "Straight"},
             {PlayCardType::Flush, "Flush"},
