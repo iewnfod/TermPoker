@@ -78,8 +78,8 @@ void Player::autoPlayEasy(const bool isNewRound) {
                 ++straightLen;
             }
             if (straightLen >= 5) {
-
-                for (int r = minRank; r <= minRank + straightLen - 1; ++r) {
+                int takeLen = 5;
+                for (int r = minRank; r < minRank + takeLen; ++r) {
                     for (auto* c : this->cards) {
                         if (c->getValueIndex() == r) {
                             firstPlay.push_back(c);
@@ -197,6 +197,9 @@ void Player::autoPlayEasy(const bool isNewRound) {
 
         else if (lastType == PlayCardType::Straight) {
             int straightLen = lastPlayed.size();
+            if (straightLen != 5) {
+                return result;
+            }
             int lastStartRank = lastPlayed[0]->getValueIndex();
             std::set<int> uniqueRanks;
             for (auto* c : this->cards) {
@@ -230,6 +233,9 @@ void Player::autoPlayEasy(const bool isNewRound) {
 
         else if (lastType == PlayCardType::Flush) {
             int flushLen = lastPlayed.size();
+            if (flushLen != 5) {                     // 只允许跟 5 张同花顺
+                return result;                       // 返回空，无法压牌
+            }
             int lastStartRank = lastPlayed[0]->getValueIndex();
             POKER_CARD_TYPE lastSuit = lastPlayed[0]->getType();
             std::vector<PokerCard*> sameSuit;
