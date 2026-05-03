@@ -243,6 +243,10 @@ public:
         return "";
     }
 
+    /**
+     * get the type index
+     * @return int
+     */
     int getTypeIndex() const {
         switch (this->type) {
             case POKER_CARD_TYPE::Diamonds:
@@ -260,7 +264,16 @@ public:
         }
     }
 
+    /**
+     * @param card
+     * to save pokercard
+     */
     void to_json(json& j, const PokerCard& card);
+
+    /**
+     * @param card
+     * to read pokercard
+     */
     void from_json(const json& j, PokerCard& card);
 };
 

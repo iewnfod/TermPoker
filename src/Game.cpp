@@ -147,12 +147,6 @@ void Game::showHistory() {
             default:                     std::cout << "Unknown";
         }
         std::cout << "\n  Result:     " << rec.result << "\n";
-        // std::cout << "  Initial Hand: ";
-        // for (const auto& cardStr : rec.playerInitialHand) {
-        //     // 可选：将字符串转回 PokerCard 再打印漂亮格式，或直接打印原始字符串
-        //     PokerCard card(cardStr);
-        //     std::cout << card.getTypeString() << card.getValueString() << " ";
-        // }
         std::cout << "\n";
     }
 }

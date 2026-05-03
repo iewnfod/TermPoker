@@ -308,9 +308,21 @@ public:
         this->handleGetLeastRemainCards = std::move(f);
     }
 
+    /**
+     * @param d
+     * to store game difficulty
+     */
     void to_json(json& j, const GameDifficulty& d);
+
+    /**
+     * @param d
+     * to read game difficulty
+     */
     void from_json(const json& j, GameDifficulty& d);
 
+    /**
+     * return the left cards of player
+     */
     std::vector<PokerCard *> getCards() {
         return cards;
     }
