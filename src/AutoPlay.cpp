@@ -403,11 +403,28 @@ void Player::autoPlayHard(const bool isNewRound) {
         const auto lastPlayedCards = getLastPlayedCards();
         for (auto& plan : robot.getPlans()) {
             for (auto& g : plan.plan) {
-                if (CardUtils::compareCards(g.cards, lastPlayedCards)) {
+                if (CardUtils::compareCards(g.cards, lastPlayedCards) && g.type != PlayCardType::Boom) {
                     if (!playCards(g.cards)) {
                         playCards({});
                     }
                     return;
+                }
+            }
+
+            const bool shouldBoom = (this->cards.size() <= 6)
+                || (leastRemainCards <= 10)
+                || lastPlayedCards.at(0)->getValueIndex() > getPokerCardValueIndex().at(POKER_CARD_VALUE::N2);
+
+            if (shouldBoom) {
+                for (auto& p : robot.getPlans()) {
+                    for (auto& g : p.plan) {
+                        if (CardUtils::compareCards(g.cards, lastPlayedCards) && g.type == PlayCardType::Boom) {
+                            if (!playCards(g.cards)) {
+                                playCards({});
+                            }
+                            return;
+                        }
+                    }
                 }
             }
         }

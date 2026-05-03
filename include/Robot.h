@@ -169,9 +169,15 @@ class Robot {
             plan.plan.insert(plan.plan.end(), extracted.begin(), extracted.end());
             clearEmptyKey();
         }
-        std::sort(plan.plan.begin(), plan.plan.end(), [](const CardGroup& a, const CardGroup& b) {
-            return cardGroupPower(a) < cardGroupPower(b);
-        });
+        bool hasSingle = false;
+        for (const auto& group : plan.plan) {
+            if (group.type == PlayCardType::Single) hasSingle = true;
+        }
+        if (cards.size() <= 4 && hasSingle) {
+            std::sort(plan.plan.begin(), plan.plan.end(), [](const CardGroup& a, const CardGroup& b) {
+                return cardGroupPower(a) < cardGroupPower(b);
+            });
+        }
         this->plans.push_back(plan);
     }
 
