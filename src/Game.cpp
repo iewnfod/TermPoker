@@ -115,7 +115,7 @@ void Game::showHistory() {
         return;
     }
 
-    std::cout << "\n===== Game History (" << allRecords.size() << " games) =====\n\n";
+    std::cout << "\n───── Game History (" << allRecords.size() << " games) ─────\n\n";
     for (size_t i = 0; i < allRecords.size(); ++i) {
         const auto& rec = allRecords[i];
         std::cout << "Game " << (i+1) << "\n";
@@ -130,6 +130,10 @@ void Game::showHistory() {
         std::cout << "\n  Result:     " << rec.result << "\n";
         std::cout << "\n";
     }
+
+    std::cout << "────────────────────────────────────────────" << std::endl;
+    std::cout << "Press any key to continue..." << std::endl;
+    Utils::getch();
 }
 
 void Game::printMenu() const {
