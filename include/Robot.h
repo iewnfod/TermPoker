@@ -9,10 +9,16 @@
 #include <vector>
 
 #include "CardUtils.h"
+#include "Player.h"
 #include "PokerCard.h"
 
+struct CardGroup {
+    std::vector<PokerCard*> cards;
+    PlayCardType type;
+};
+
 struct Plan {
-    std::vector<std::vector<PokerCard*>> plan;
+    std::vector<CardGroup> plan;
 };
 
 enum class PlanStrategy {
@@ -30,6 +36,9 @@ class Robot {
     std::vector<POKER_CARD_VALUE> activeValues;
     const std::map<POKER_CARD_VALUE, int> valueIndexMap = getPokerCardValueIndex();
     const std::map<int, POKER_CARD_VALUE> inverseValueIndexMap = getInversePokerCardValueIndex();
+    std::map<POKER_CARD_VALUE, int> remainCards;
+    int leastRemainCards = 0;
+    GameDifficulty difficulty = GameDifficulty::Medium;
 
     bool hasConsecutive(const POKER_CARD_VALUE startIdx, const int len) {
         return hasConsecutive(startIdx, len, 1);
@@ -63,16 +72,16 @@ class Robot {
         }
     }
 
-    std::vector<std::vector<PokerCard*>> extractBoom();
-    std::vector<std::vector<PokerCard*>> extractStraight();
-    std::vector<std::vector<PokerCard*>> extractTriple();
-    std::vector<std::vector<PokerCard*>> extractPair();
-    std::vector<std::vector<PokerCard*>> extractSingle();
-    std::vector<std::vector<PokerCard*>> extractThreePlusTwo();
-    std::vector<std::vector<PokerCard*>> extractDoubleTriple();
-    std::vector<std::vector<PokerCard*>> extractTriplePair();
-    std::vector<std::vector<PokerCard*>> extractConsecutiveEntities() {
-        std::vector<std::vector<PokerCard*>> p = {};
+    std::vector<CardGroup> extractBoom();
+    std::vector<CardGroup> extractStraight();
+    std::vector<CardGroup> extractTriple();
+    std::vector<CardGroup> extractPair();
+    std::vector<CardGroup> extractSingle();
+    std::vector<CardGroup> extractThreePlusTwo();
+    std::vector<CardGroup> extractDoubleTriple();
+    std::vector<CardGroup> extractTriplePair();
+    std::vector<CardGroup> extractConsecutiveEntities() {
+        std::vector<CardGroup> p = {};
         for (const auto& i : extractDoubleTriple()) {
             p.push_back(i);
         };
@@ -92,7 +101,7 @@ class Robot {
         }
     }
 
-    std::vector<std::function<std::vector<std::vector<PokerCard*>>()>> getStrategyActions(const PlanStrategy s) {
+    std::vector<std::function<std::vector<CardGroup>()>> getStrategyActions(const PlanStrategy s) {
         if (s == PlanStrategy::BALANCED) {
             return {
                 [this]() {return this->extractBoom();},
@@ -104,8 +113,8 @@ class Robot {
             };
         } else if (s == PlanStrategy::STRAIGHT) {
             return {
-                [this]() {return this->extractBoom();},
                 [this]() {return this->extractStraight();},
+                [this]() {return this->extractBoom();},
                 [this]() {return this->extractConsecutiveEntities();},
                 [this]() {return this->extractThreePlusTwo();},
                 [this]() {return this->extractTriple();},
@@ -114,8 +123,8 @@ class Robot {
             };
         } else if (s == PlanStrategy::PAIR) {
             return {
-                [this]() {return this->extractBoom();},
                 [this]() {return this->extractPair();},
+                [this]() {return this->extractBoom();},
                 [this]() {return this->extractConsecutiveEntities();},
                 [this]() {return this->extractThreePlusTwo();},
                 [this]() {return this->extractTriple();},
@@ -125,6 +134,34 @@ class Robot {
         return {};
     }
 
+    static int cardGroupPower(const CardGroup& group) {
+        int base = 0;
+        switch (group.type) {
+            case PlayCardType::Single:
+                base = 0; break;
+            case PlayCardType::Pair:
+                base = 100; break;
+            case PlayCardType::Triple:
+                base = 200; break;
+            case PlayCardType::Straight:
+                base = 300; break;
+            case PlayCardType::TriplePair:
+                base = 400; break;
+            case PlayCardType::DoubleTriple:
+                base = 500; break;
+            case PlayCardType::ThreePlusTwo:
+                base = 600; break;
+            case PlayCardType::Boom:
+                base = 1000; break;
+            default: break;
+        }
+        int maxIndex = 0;
+        for (const auto c : group.cards) {
+            maxIndex = std::max(maxIndex, c->getValueIndex());
+        }
+        return base + maxIndex;
+    }
+
     void runStrategy(const PlanStrategy s) {
         Plan plan;
         for (const auto& f : getStrategyActions(s)) {
@@ -132,7 +169,42 @@ class Robot {
             plan.plan.insert(plan.plan.end(), extracted.begin(), extracted.end());
             clearEmptyKey();
         }
+        std::sort(plan.plan.begin(), plan.plan.end(), [](const CardGroup& a, const CardGroup& b) {
+            return cardGroupPower(a) < cardGroupPower(b);
+        });
         this->plans.push_back(plan);
+    }
+
+    double estimateProb(const POKER_CARD_VALUE startIdx, const int len, const int size) const {
+        int biggerLeft = 0;
+
+        const auto vIndex = valueIndexMap.at(startIdx);
+        for (auto& pair : valueIndexMap) {
+            const auto idx = pair.second;
+            if (idx > vIndex) {
+                bool validPattern = true;
+                for (int i = 0; i < len; i++) {
+                    int nextIdx = idx + i;
+                    auto it = inverseValueIndexMap.find(nextIdx);
+                    if (it == inverseValueIndexMap.end()) {
+                        validPattern = false;
+                        break;
+                    };
+                    POKER_CARD_VALUE nextVal = it->second;
+                    if (remainCards.find(nextVal) == remainCards.end() || remainCards.at(nextVal) < size) {
+                        validPattern = false;
+                        break;
+                    };
+                }
+                if (validPattern) {
+                    biggerLeft++;
+                }
+            }
+        }
+
+        if (biggerLeft == 0) return 0.95;
+        if (biggerLeft <= 2) return 0.6;
+        return 0.3;
     }
 
 public:
@@ -152,6 +224,18 @@ public:
         }
     }
 
+    void setRemainCards(const std::map<POKER_CARD_VALUE, int>& cds) {
+        this->remainCards = cds;
+    }
+
+    void setLeastRemainCards(const int n) {
+        this->leastRemainCards = n;
+    }
+
+    void setGameDifficulty(const GameDifficulty diff) {
+        this->difficulty = diff;
+    }
+
     void generatePlans() {
         count = countBackup;
         runStrategy(PlanStrategy::BALANCED);
@@ -161,14 +245,78 @@ public:
         runStrategy(PlanStrategy::PAIR);
     }
 
-    Plan getPlanWithSmallestRounds() const {
+    Plan getBestPlan() const {
         Plan plan;
+        double planCost = 1e9;
         for (const auto& p : plans) {
-            if (p.plan.size() < plan.plan.size() || plan.plan.empty()) {
+            const double cost = evaluatePlan(p);
+            if (cost < planCost) {
                 plan = p;
+                planCost = cost;
             }
         }
         return plan;
+    }
+
+    std::vector<Plan> getPlans() {
+        return this->plans;
+    }
+
+    void sortPlans() {
+        std::sort(plans.begin(), plans.end(), [this](const Plan& p1, const Plan& p2) {
+            return evaluatePlan(p1) < evaluatePlan(p2);
+        });
+    }
+
+    double evaluatePlan(const Plan& plan) const {
+        const auto totalRounds = static_cast<double>(plan.plan.size());
+        double weakRounds = 0, boomRounds = 0;
+        for (const auto& block : plan.plan) {
+            if (block.type == PlayCardType::Boom) {
+                boomRounds++;
+            }
+            const auto mainValue = block.cards[0]->getValue();
+            if (difficulty == GameDifficulty::Hard) {
+                double winProb = 0.5;
+                if (block.type == PlayCardType::Single) {
+                    winProb = estimateProb(mainValue, 1, 1);
+                } else if (block.type == PlayCardType::Pair) {
+                    winProb = estimateProb(mainValue, 1, 2);
+                } else if (block.type == PlayCardType::Triple) {
+                    winProb = estimateProb(mainValue, 1, 3);
+                } else if (block.type == PlayCardType::DoubleTriple) {
+                    winProb = estimateProb(mainValue, 2, 3);
+                } else if (block.type == PlayCardType::TriplePair) {
+                    winProb = estimateProb(mainValue, 3, 2);
+                } else if (block.type == PlayCardType::Straight) {
+                    winProb = estimateProb(mainValue, 5, 1);
+                } else if (block.type == PlayCardType::ThreePlusTwo) {
+                    winProb = estimateProb(mainValue, 1, 3) * estimateProb(POKER_CARD_VALUE::N3, 1, 2);
+                }
+                if (winProb < 0.5) weakRounds++;
+            } else {
+                if (valueIndexMap.at(mainValue) <= valueIndexMap.at(POKER_CARD_VALUE::N10)) {
+                    weakRounds++;
+                }
+            }
+        }
+
+        double cost = totalRounds * 1.0;
+        cost += weakRounds * 1.5;
+
+        if (difficulty == GameDifficulty::Hard) {
+            if (leastRemainCards <= 3) {
+                boomRounds *= 1.7;
+            } else if (leastRemainCards <= 10) {
+                boomRounds *= 1.3;
+            } else {
+                boomRounds *= 0.5;
+            }
+        }
+
+        cost -= boomRounds * 0.8;
+
+        return cost;
     }
 };
 

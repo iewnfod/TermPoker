@@ -4,72 +4,72 @@
 
 #include "../include/Robot.h"
 
-std::vector<std::vector<PokerCard*>> Robot::extractBoom() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractBoom() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (count.find(val) != count.end() && count.at(val).size() >= 4) {
-            result.push_back(takeCards(val, 4));
+            result.push_back({takeCards(val, 4), PlayCardType::Boom});
         }
     }
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractStraight() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractStraight() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (hasConsecutive(val, 5)) {
-            result.emplace_back();
+            result.push_back({{}, PlayCardType::Straight});
             for (int i = 0; i < 5; ++i) {
                 const int newValIndex = it.second + i;
                 const auto cds = takeCards(inverseValueIndexMap.at(newValIndex), 1);
-                result.back().push_back(cds[0]);
+                result.back().cards.push_back(cds[0]);
             }
         }
     }
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractSingle() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractSingle() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (hasConsecutive(val, 1)) {
-            result.push_back(takeCards(val, 1));
+            result.push_back({takeCards(val, 1), PlayCardType::Single});
         }
     }
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractPair() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractPair() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (hasConsecutive(val, 1, 2)) {
-            result.push_back(takeCards(val, 2));
+            result.push_back({takeCards(val, 2), PlayCardType::Pair});
         }
     }
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractTriple() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractTriple() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (hasConsecutive(val, 1, 3)) {
-            result.push_back(takeCards(val, 3));
+            result.push_back({takeCards(val, 3), PlayCardType::Triple});
         }
     }
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractDoubleTriple() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractDoubleTriple() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (hasConsecutive(val, 2, 3)) {
-            result.emplace_back();
+            result.push_back({{}, PlayCardType::DoubleTriple});
             for (int i = 0; i < 2; i ++) {
                 const auto nextValIt = inverseValueIndexMap.find(it.second+i);
                 if (nextValIt == inverseValueIndexMap.end()) {
@@ -77,7 +77,7 @@ std::vector<std::vector<PokerCard*>> Robot::extractDoubleTriple() {
                 }
                 const auto nextVal = nextValIt->second;
                 for (auto c : takeCards(nextVal, 3)) {
-                    result.back().push_back(c);
+                    result.back().cards.push_back(c);
                 }
             }
         }
@@ -85,12 +85,12 @@ std::vector<std::vector<PokerCard*>> Robot::extractDoubleTriple() {
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractTriplePair() {
-    std::vector<std::vector<PokerCard*>> result = {};
+std::vector<CardGroup> Robot::extractTriplePair() {
+    std::vector<CardGroup> result = {};
     for (auto &it : valueIndexMap) {
         const POKER_CARD_VALUE val = it.first;
         while (hasConsecutive(val, 3, 2)) {
-            result.emplace_back();
+            result.push_back({{}, PlayCardType::TriplePair});
             for (int i = 0; i < 3; i ++) {
                 const auto nextValIt = inverseValueIndexMap.find(it.second+i);
                 if (nextValIt == inverseValueIndexMap.end()) {
@@ -98,7 +98,7 @@ std::vector<std::vector<PokerCard*>> Robot::extractTriplePair() {
                 }
                 const auto nextVal = nextValIt->second;
                 for (auto c : takeCards(nextVal, 2)) {
-                    result.back().push_back(c);
+                    result.back().cards.push_back(c);
                 }
             }
         }
@@ -106,8 +106,8 @@ std::vector<std::vector<PokerCard*>> Robot::extractTriplePair() {
     return result;
 }
 
-std::vector<std::vector<PokerCard*>> Robot::extractThreePlusTwo() {
-    std::vector<std::vector<PokerCard*>> result;
+std::vector<CardGroup> Robot::extractThreePlusTwo() {
+    std::vector<CardGroup> result;
     for (auto& it : valueIndexMap) {
         const POKER_CARD_VALUE tripleVal = it.first;
         while (hasConsecutive(tripleVal, 1, 3)) {  // find 3 same cards
@@ -121,7 +121,7 @@ std::vector<std::vector<PokerCard*>> Robot::extractThreePlusTwo() {
                     auto tripleCards = takeCards(tripleVal, 3);
                     auto pairCards = takeCards(pairVal, 2);
                     tripleCards.insert(tripleCards.end(), pairCards.begin(), pairCards.end());
-                    result.push_back(tripleCards);
+                    result.push_back({tripleCards, PlayCardType::ThreePlusTwo});
                     findPair = true;
                     break;
                 }

@@ -144,6 +144,8 @@ void Game::load() {
 }
 
 void Game::welcome() {
+    this->quitFlag = false;
+
     std::cout << std::endl;
     std::cout << "Welcome to TermPoker!" << std::endl;
     std::cout << "Use <up⬆️> or <down⬇️> to select and <enter↩️> to confirm." << std::endl;

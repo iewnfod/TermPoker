@@ -384,6 +384,15 @@ public:
         player.onGetLastPlayedCards([this]() {
             return this->getTrueLastPlayedCards();
         });
+        player.onGetLeastRemainCards([this, player]() {
+            int least = 1e9;
+            for (auto& p : this->players) {
+                if (p.getCards().size() < least && p.getId() != player.getId()) {
+                    least = static_cast<int>(p.getCards().size());
+                }
+            }
+            return least;
+        });
     }
 
     /**

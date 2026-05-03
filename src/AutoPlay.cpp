@@ -379,7 +379,38 @@ void Player::autoPlayEasy(const bool isNewRound) {
 }
 
 void Player::autoPlayHard(const bool isNewRound) {
+    const auto remainCards = handlePrintLeftCards();
+    const auto leastRemainCards = handleGetLeastRemainCards();
     auto robot = Robot(this->cards);
+    robot.setGameDifficulty(difficulty);
+    robot.setRemainCards(remainCards);
+    robot.setLeastRemainCards(leastRemainCards);
     robot.generatePlans();
-    std::cout << robot.getPlanWithSmallestRounds().plan.size() << std::endl;
+    if (isNewRound) {
+        const auto bestPlan = robot.getBestPlan();
+        auto it = bestPlan.plan.begin();
+        while (it != bestPlan.plan.end()) {
+            if (it->type != PlayCardType::Boom) {
+                playCards(it->cards);
+                return;
+            } else {
+                ++it;
+            }
+        }
+        playCards(bestPlan.plan.front().cards);
+    } else {
+        robot.sortPlans();
+        const auto lastPlayedCards = getLastPlayedCards();
+        for (auto& plan : robot.getPlans()) {
+            for (auto& g : plan.plan) {
+                if (CardUtils::compareCards(g.cards, lastPlayedCards)) {
+                    if (!playCards(g.cards)) {
+                        playCards({});
+                    }
+                    return;
+                }
+            }
+        }
+        playCards({});
+    }
 }

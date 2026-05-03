@@ -31,6 +31,7 @@ class Player {
     std::function<bool(std::string, std::vector<PokerCard*>)> handlePlayCards;
     std::function<std::vector<PokerCard*>()> getLastPlayedCards;
     int roundNumber = 1;
+    std::function<int()> handleGetLeastRemainCards;
 
     /**
      * Mark or unmark the card with cursor as selected and automatically move cursor to next card in the right.
@@ -117,7 +118,7 @@ public:
     /**
      * @return id of this player
      */
-    std::string getId() {
+    std::string getId() const {
         return this->id;
     }
 
@@ -296,6 +297,13 @@ public:
      */
     void sortCards() {
         CardUtils::sortCards(this->cards);
+    }
+
+    /**
+     * @param f function to get the least remain cards in the game
+     */
+    void onGetLeastRemainCards(std::function<int()> f) {
+        this->handleGetLeastRemainCards = std::move(f);
     }
 };
 
