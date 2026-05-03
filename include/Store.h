@@ -10,6 +10,11 @@
 class Store {
     std::string basePath = Utils::joinPath({Utils::getHomePath(), ".termpoker"});
 public:
+    Store() {
+        if (!Utils::dirExists(this->basePath)) {
+            Utils::makeDir(this->basePath);
+        }
+    }
     /**
      * Expect to be $HOME/.termpoker on Unix-Like System or %USERPROFILE%\.termpoker on Windows.
      * @return base path of store.
