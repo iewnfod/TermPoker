@@ -317,12 +317,13 @@ void Game::mainloop() {
         const std::vector<PokerCard*> playerHand = player->getCards();
         this->recordInitialHand(playerHand);
         while (deck->getWinner().empty()) {
-            const auto lastPlayed = player->waitForUserInput();
+            player->waitForUserInput();
             if (this->quitFlag) {
                 this->recordResult("Quit");
                 break;
             }
             std::cout << std::endl;
+            const auto lastPlayed = deck->getLastPlayedCards();
             if (lastPlayed.empty()) {
                 std::cout << "You played nothing" << std::endl;
             } else {

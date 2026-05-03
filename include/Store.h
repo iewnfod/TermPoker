@@ -5,6 +5,7 @@
 #ifndef TERMPOKER_STORE_H
 #define TERMPOKER_STORE_H
 #include <string>
+#include "Utils.h"
 
 class Store {
     std::string basePath = Utils::joinPath({Utils::getHomePath(), ".termpoker"});
