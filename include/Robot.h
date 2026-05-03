@@ -25,7 +25,7 @@ enum class PlanStrategy {
     BALANCED,
     STRAIGHT,
     PAIR,
-    FLEXIBLE,
+    THREE_PLUS_TWO,
 };
 
 class Robot {
@@ -40,10 +40,23 @@ class Robot {
     int leastRemainCards = 0;
     GameDifficulty difficulty = GameDifficulty::Medium;
 
+    /**
+     * Find consecutive cards in count.
+     * @param startIdx start card value
+     * @param len how many consecutive cards to find
+     * @return true if there exist
+     */
     bool hasConsecutive(const POKER_CARD_VALUE startIdx, const int len) {
         return hasConsecutive(startIdx, len, 1);
     }
 
+    /**
+     * Find consecutive cards in count.
+     * @param startIdx start card value
+     * @param len how many consecutive cards to find
+     * @param size the number of same cards need to exist
+     * @return true if there exist
+     */
     bool hasConsecutive(const POKER_CARD_VALUE startIdx, const int len, const int size) {
         const auto vIndex = valueIndexMap.at(startIdx);
         for (int i = 0; i < len; i++) {
@@ -56,6 +69,12 @@ class Robot {
         return true;
     }
 
+    /**
+     * Take cards from count.
+     * @param value card value
+     * @param counts card number
+     * @return the taken card
+     */
     std::vector<PokerCard*> takeCards(const POKER_CARD_VALUE value, const int counts) {
         if (count.find(value) != count.end()) {
             std::vector<PokerCard*> cds = {};
@@ -72,14 +91,58 @@ class Robot {
         }
     }
 
+    /**
+     * Extract Boom type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractBoom();
+
+    /**
+     * Extract Straight type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractStraight();
+
+    /**
+     * Extract Triple type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractTriple();
+
+    /**
+     * Extract Pair type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractPair();
+
+    /**
+     * Extract Single type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractSingle();
+
+    /**
+     * Extract Three Plus Two type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractThreePlusTwo();
+
+    /**
+     * Extract Double Triple type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractDoubleTriple();
+
+    /**
+     * Extract Triple Pair type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractTriplePair();
+
+    /**
+     * Extract Double Triple, Triple Pair, and Straight type from count.
+     * @return a vector of card group
+     */
     std::vector<CardGroup> extractConsecutiveEntities() {
         std::vector<CardGroup> p = {};
         for (const auto& i : extractDoubleTriple()) {
@@ -94,6 +157,9 @@ class Robot {
         return p;
     }
 
+    /**
+     * Clear empty keys in count.
+     */
     void clearEmptyKey() {
         for (auto it = count.begin(); it != count.end();) {
             if (it->second.empty()) it = count.erase(it);
@@ -101,6 +167,10 @@ class Robot {
         }
     }
 
+    /**
+     * @param s plan strategy
+     * @return a sequence of functions to extract cards
+     */
     std::vector<std::function<std::vector<CardGroup>()>> getStrategyActions(const PlanStrategy s) {
         if (s == PlanStrategy::BALANCED) {
             return {
@@ -130,10 +200,23 @@ class Robot {
                 [this]() {return this->extractTriple();},
                 [this]() {return this->extractSingle();},
             };
+        } else if (s == PlanStrategy::THREE_PLUS_TWO) {
+            return {
+                [this]() {return this->extractThreePlusTwo();},
+                [this]() {return this->extractBoom();},
+                [this]() {return this->extractConsecutiveEntities();},
+                [this]() {return this->extractTriple();},
+                [this]() {return this->extractPair();},
+                [this]() {return this->extractSingle();},
+            };
         }
         return {};
     }
 
+    /**
+     * @param group card group
+     * @return the power of the group
+     */
     static int cardGroupPower(const CardGroup& group) {
         int base = 0;
         switch (group.type) {
@@ -162,7 +245,12 @@ class Robot {
         return base + maxIndex;
     }
 
+    /**
+     * Run a strategy of extracting cards and push the new plan to plans.
+     * @param s strategy of the extracting cards
+     */
     void runStrategy(const PlanStrategy s) {
+        count = countBackup;
         Plan plan;
         for (const auto& f : getStrategyActions(s)) {
             auto extracted = f();
@@ -181,6 +269,13 @@ class Robot {
         this->plans.push_back(plan);
     }
 
+    /**
+     * Estimate the probability for a pattern of cards to win
+     * @param startIdx start value
+     * @param len number consecutive cards
+     * @param size number of same card value
+     * @return a probability from 0 to 1
+     */
     double estimateProb(const POKER_CARD_VALUE startIdx, const int len, const int size) const {
         int biggerLeft = 0;
 
@@ -214,6 +309,10 @@ class Robot {
     }
 
 public:
+    /**
+     * Init Robot.
+     * @param cards cards for plan
+     */
     explicit Robot(const std::vector<PokerCard*> &cards) {
         this->cards = cards;
         CardUtils::sortCards(this->cards);
@@ -230,27 +329,41 @@ public:
         }
     }
 
+    /**
+     * @param cds all remain cards in the game, including the robot itself
+     */
     void setRemainCards(const std::map<POKER_CARD_VALUE, int>& cds) {
         this->remainCards = cds;
     }
 
+    /**
+     * @param n the least remain card number in the game, except the robot itself
+     */
     void setLeastRemainCards(const int n) {
         this->leastRemainCards = n;
     }
 
+    /**
+     * @param diff difficulty of the game
+     */
     void setGameDifficulty(const GameDifficulty diff) {
         this->difficulty = diff;
     }
 
+    /**
+     * Generate plans for various strategies.
+     */
     void generatePlans() {
-        count = countBackup;
         runStrategy(PlanStrategy::BALANCED);
-        count = countBackup;
         runStrategy(PlanStrategy::STRAIGHT);
-        count = countBackup;
         runStrategy(PlanStrategy::PAIR);
+        runStrategy(PlanStrategy::THREE_PLUS_TWO);
     }
 
+    /**
+     * Get the plan with the lowest cost.
+     * @return the best plan
+     */
     Plan getBestPlan() const {
         Plan plan;
         double planCost = 1e9;
@@ -264,16 +377,27 @@ public:
         return plan;
     }
 
+    /**
+     * @return all plans
+     */
     std::vector<Plan> getPlans() {
         return this->plans;
     }
 
+    /**
+     * Sort plans depends on their cost, from small to large.
+     */
     void sortPlans() {
         std::sort(plans.begin(), plans.end(), [this](const Plan& p1, const Plan& p2) {
             return evaluatePlan(p1) < evaluatePlan(p2);
         });
     }
 
+    /**
+     * Estimate the cost depends on vairous information.
+     * @param plan plan to evaluate cost
+     * @return a cost value in double
+     */
     double evaluatePlan(const Plan& plan) const {
         const auto totalRounds = static_cast<double>(plan.plan.size());
         double weakRounds = 0, boomRounds = 0;
