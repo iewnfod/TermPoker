@@ -101,6 +101,36 @@ class Game {
      */
     static void clearMenu();
 
+    struct GameRecord {
+        std::string timestamp;
+        std::string difficulty;
+        std::string playerInitialHand;
+        std::vector<std::string> plays;
+        std::string result;
+    };
+    GameRecord currentRecord;
+
+    /**
+     * Convert cards to a single line of string to store
+     * @param cards
+     * @return e.g. "clubs|3 diamonds|K joker|LJ"
+     */
+    static std::string cardsToString(const std::vector<PokerCard*>& cards);
+    std::vector<GameRecord> allRecords;
+
+    /**
+     * convert GameDifficulty to string to store
+     * @param diff
+     * @return string
+     */
+    void difficultyToString(const GameDifficulty diff) {
+        switch (diff) {
+            case GameDifficulty::Easy:   currentRecord.difficulty = "Easy"; break;
+            case GameDifficulty::Medium: currentRecord.difficulty = "Medium"; break;
+            case GameDifficulty::Hard:   currentRecord.difficulty = "Hard"; break;
+        }
+    }
+
 public:
     Game() {
         this->deck = new Deck(2);

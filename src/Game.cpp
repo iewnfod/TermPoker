@@ -6,6 +6,10 @@
 #include "../include/Utils.h"
 
 #include <iostream>
+#include <fstream>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 void Game::printMenu() const {
     const auto allMenuMap = getAllMenu();
@@ -46,6 +50,96 @@ void Game::clearMenu() {
     const auto allMenuMap = getAllMenu();
     for (int i = 0; i < allMenuMap.size(); i++) {
         Utils::cursorMoveAndClearLastLine();
+    }
+}
+
+std::string Game::cardsToString(const std::vector<PokerCard*>& cards) {
+    std::string result;
+    for (auto* c : cards) {
+        if (!result.empty()) result += " ";
+        result += c->toString();
+    }
+    return result;
+}
+
+void Game::save() {
+    if (currentRecord.timestamp.empty()) {
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+        currentRecord.timestamp = oss.str();
+    }
+
+    if (currentRecord.difficulty.empty()) currentRecord.difficulty = "Unknown";
+
+    std::ofstream file("history.txt", std::ios::app);
+    if (!file.is_open()) return;
+
+    file << "===== BEGIN RECORD =====\n";
+    file << "Timestamp: " << currentRecord.timestamp << "\n";
+    file << "Difficulty: " << currentRecord.difficulty << "\n";
+    file << "InitialHand: " << currentRecord.playerInitialHand << "\n";
+    file << "PlaysCount: " << currentRecord.plays.size() << "\n";
+    for (const auto& play : currentRecord.plays)
+        file << "  " << play << "\n";
+    file << "Result: " << currentRecord.result << "\n";
+    file << "===== END RECORD =====\n\n";
+    file.close();
+
+    currentRecord = GameRecord{};
+}
+
+void Game::load() {
+    std::ifstream file("history.txt");
+    if (!file.is_open()) {
+        std::cout << "No history file found.\n";
+        return;
+    }
+
+    allRecords.clear();
+    GameRecord rec;
+    bool inside = false;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        if (line == "===== BEGIN RECORD =====") {
+            inside = true;
+            rec = GameRecord{};
+            continue;
+        }
+        if (line == "===== END RECORD =====") {
+            if (inside) allRecords.push_back(rec);
+            inside = false;
+            continue;
+        }
+        if (!inside) continue;
+
+        if (line.find("Timestamp: ") == 0) rec.timestamp = line.substr(11);
+        else if (line.find("Difficulty: ") == 0) rec.difficulty = line.substr(12);
+        else if (line.find("InitialHand: ") == 0) rec.playerInitialHand = line.substr(13);
+        else if (line.find("Result: ") == 0) rec.result = line.substr(8);
+        else if (line.find("  ") == 0) rec.plays.push_back(line.substr(2));
+    }
+    file.close();
+
+    if (allRecords.empty()) {
+        std::cout << "No records.\n";
+        return;
+    }
+
+    std::cout << "\n===== History (" << allRecords.size() << " games) =====\n";
+    for (size_t i = 0; i < allRecords.size(); ++i) {
+        const auto& r = allRecords[i];
+        std::cout << "Game " << i+1 << "\n";
+        std::cout << "  Time:       " << r.timestamp << "\n";
+        std::cout << "  Difficulty: " << r.difficulty << "\n";
+        std::cout << "  Result:     " << r.result << "\n";
+        std::cout << "  Initial:    " << r.playerInitialHand << "\n";
+        std::cout << "  Plays:      " << r.plays.size() << "\n";
+        for (size_t j = 0; j < r.plays.size(); ++j)
+            std::cout << "    " << j+1 << ": " << r.plays[j] << "\n";
+        std::cout << "\n";
     }
 }
 
