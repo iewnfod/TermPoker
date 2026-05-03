@@ -12,6 +12,8 @@
 #include "CardUtils.h"
 #include "PokerCard.h"
 #include "Utils.h"
+#include "../ext-lib/json.hpp"
+using json = nlohmann::json;
 
 enum class GameDifficulty {
     Easy, Medium, Hard
@@ -305,6 +307,9 @@ public:
     void onGetLeastRemainCards(std::function<int()> f) {
         this->handleGetLeastRemainCards = std::move(f);
     }
+
+    void to_json(json& j, const GameDifficulty& d);
+    void from_json(const json& j, GameDifficulty& d);
 };
 
 #endif //TERMPOKER_PLAYER_H

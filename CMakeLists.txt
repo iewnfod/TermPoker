@@ -17,6 +17,7 @@ set(SOURCE_FILES
         src/Robot.cpp
         include/Robot.h
         src/AutoPlay.cpp
+        src/Json.cpp
 )
 
 add_executable(termpoker ${SOURCE_FILES})

@@ -10,6 +10,8 @@
 
 #include "Deck.h"
 #include "Store.h"
+#include "../ext-lib/json.hpp"
+using json = nlohmann::json;
 
 enum class GameMenu {
     PlayNow,
@@ -103,33 +105,27 @@ class Game {
 
     struct GameRecord {
         std::string timestamp;
-        std::string difficulty;
-        std::string playerInitialHand;
-        std::vector<std::string> plays;
+        GameDifficulty difficulty;
+        std::vector<std::string> playerInitialHand;
+        std::vector<std::vector<std::string>> plays;
         std::string result;
     };
-    GameRecord currentRecord;
 
-    /**
-     * Convert cards to a single line of string to store
-     * @param cards
-     * @return e.g. "clubs|3 diamonds|K joker|LJ"
-     */
-    static std::string cardsToString(const std::vector<PokerCard*>& cards);
-    std::vector<GameRecord> allRecords;
+    GameRecord currentRecord;           // 当前对局暂存
+    std::vector<GameRecord> allRecords; // 仅在 showHistory 中使用
 
-    /**
-     * convert GameDifficulty to string to store
-     * @param diff
-     * @return string
-     */
-    void difficultyToString(const GameDifficulty diff) {
-        switch (diff) {
-            case GameDifficulty::Easy:   currentRecord.difficulty = "Easy"; break;
-            case GameDifficulty::Medium: currentRecord.difficulty = "Medium"; break;
-            case GameDifficulty::Hard:   currentRecord.difficulty = "Hard"; break;
-        }
-    }
+    // 友元 JSON 转换函数（只声明，定义在 .cpp）
+    friend void to_json(json& j, const GameRecord& r);
+    friend void from_json(const json& j, GameRecord& r);
+
+    // ---- 私有辅助函数（声明）----
+    static std::string getCurrentTimestamp();
+
+    static std::string generateHistoryFileName();
+
+    static void ensureHistoryDir();
+
+    static void collectHistoryFiles(std::vector<std::string>& files);
 
 public:
     Game() {
@@ -166,6 +162,19 @@ public:
      * Print welcome menu of the game and automatically run mainloop.
      */
     void welcome();
+
+    void setCurrentDifficulty(GameDifficulty diff);
+
+    void recordInitialHand(const std::vector<PokerCard*>& hand);
+
+    void recordPlay(const std::vector<PokerCard*>& playedCards);
+
+    void recordResult(const std::string& result);
+
+    void saveCurrentGame();
+
+    void showHistory();
+
 };
 
 #endif //TERMPOKER_GAME_H

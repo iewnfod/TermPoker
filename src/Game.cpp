@@ -7,9 +7,169 @@
 
 #include <iostream>
 #include <fstream>
-#include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <algorithm>
+#ifdef _WIN32
+#include <direct.h>
+#endif
+
+namespace {
+    bool dirExists(const std::string& path) {
+        struct stat st;
+        return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+    }
+
+    bool makeDir(const std::string& path) {
+        #ifdef _WIN32
+        return _mkdir(path.c_str()) == 0;
+        #else
+        return mkdir(path.c_str(), 0755) == 0;
+        #endif
+    }
+}
+
+std::string Game::getCurrentTimestamp() {
+    auto t = std::time(nullptr);
+    const auto tm = *std::localtime(&t);
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
+}
+
+std::string Game::generateHistoryFileName() {
+    auto t = std::time(nullptr);
+    const auto tm = *std::localtime(&t);
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+    return oss.str() + ".json";
+}
+
+void Game::ensureHistoryDir() {
+    std::string base = Store().getBasePath();
+    std::string historyDir = base + "/history";
+    if (!dirExists(base)) makeDir(base);
+    if (!dirExists(historyDir)) makeDir(historyDir);
+}
+
+std::vector<std::string> cardsToStrings(const std::vector<PokerCard*>& cards) {
+    std::vector<std::string> result;
+    result.reserve(cards.size());
+    for (const auto* c : cards) {
+        result.push_back(c->toString());
+    }
+    return result;
+}
+
+void Game::collectHistoryFiles(std::vector<std::string>& files) {
+    std::string historyDir = Store().getBasePath() + "/history";
+    DIR* dir = opendir(historyDir.c_str());
+    if (dir) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != nullptr) {
+            std::string name = entry->d_name;
+            if (name.length() > 5 && name.substr(name.length() - 5) == ".json") {
+                files.push_back(historyDir + "/" + name);
+            }
+        }
+        closedir(dir);
+    }
+    std::sort(files.begin(), files.end());
+}
+
+void Game::setCurrentDifficulty(const GameDifficulty diff) {
+    currentRecord.difficulty = diff;
+}
+
+void Game::recordInitialHand(const std::vector<PokerCard*>& hand) {
+    currentRecord.playerInitialHand = cardsToStrings(hand);
+}
+
+void Game::recordPlay(const std::vector<PokerCard*>& playedCards) {
+    currentRecord.plays.push_back(cardsToStrings(playedCards));
+}
+
+void Game::recordResult(const std::string& result) {
+    currentRecord.result = result;
+}
+
+void Game::saveCurrentGame() {
+    if (currentRecord.timestamp.empty())
+        currentRecord.timestamp = getCurrentTimestamp();
+
+    ensureHistoryDir();
+    std::string fullPath = Store().getBasePath() + "/history/" + generateHistoryFileName();
+
+    std::ofstream file(fullPath);
+    if (!file.is_open()) {
+        std::cerr << "Failed to save history: " << fullPath << std::endl;
+        return;
+    }
+    json j = currentRecord;
+    file << j.dump(4);
+    file.close();
+
+    currentRecord = GameRecord{};
+}
+
+void Game::showHistory() {
+    std::vector<std::string> files;
+    collectHistoryFiles(files);
+    if (files.empty()) {
+        std::cout << "No history found.\n";
+        return;
+    }
+
+    allRecords.clear();
+    for (const auto& path : files) {
+        std::ifstream file(path);
+        if (!file.is_open()) continue;
+        json j;
+        try {
+            file >> j;
+            allRecords.push_back(j.get<GameRecord>());
+        } catch (const std::exception& e) {
+            std::cerr << "Parse error in " << path << ": " << e.what() << std::endl;
+        }
+    }
+
+    if (allRecords.empty()) {
+        std::cout << "No valid records.\n";
+        return;
+    }
+
+    std::cout << "\n===== Game History (" << allRecords.size() << " games) =====\n\n";
+    for (size_t i = 0; i < allRecords.size(); ++i) {
+        const auto& rec = allRecords[i];
+        std::cout << "Game " << (i+1) << "\n";
+        std::cout << "  Time:       " << rec.timestamp << "\n";
+        std::cout << "  Difficulty: ";
+        switch (rec.difficulty) {
+            case GameDifficulty::Easy:   std::cout << "Easy"; break;
+            case GameDifficulty::Medium: std::cout << "Medium"; break;
+            case GameDifficulty::Hard:   std::cout << "Hard"; break;
+            default:                     std::cout << "Unknown";
+        }
+        std::cout << "\n  Result:     " << rec.result << "\n";
+        std::cout << "  Initial Hand: ";
+        for (const auto& cardStr : rec.playerInitialHand) {
+            // 可选：将字符串转回 PokerCard 再打印漂亮格式，或直接打印原始字符串
+            PokerCard card(cardStr);
+            std::cout << card.getTypeString() << card.getValueString() << " ";
+        }
+        std::cout << "\n  Moves:      " << rec.plays.size() << "\n";
+        for (size_t j = 0; j < rec.plays.size(); ++j) {
+            std::cout << "    " << (j+1) << ": ";
+            for (const auto& cardStr : rec.plays[j]) {
+                PokerCard card(cardStr);
+                std::cout << card.getTypeString() << card.getValueString() << " ";
+            }
+            std::cout << "\n";
+        }
+    }
+}
 
 void Game::printMenu() const {
     const auto allMenuMap = getAllMenu();
@@ -50,96 +210,6 @@ void Game::clearMenu() {
     const auto allMenuMap = getAllMenu();
     for (int i = 0; i < allMenuMap.size(); i++) {
         Utils::cursorMoveAndClearLastLine();
-    }
-}
-
-std::string Game::cardsToString(const std::vector<PokerCard*>& cards) {
-    std::string result;
-    for (auto* c : cards) {
-        if (!result.empty()) result += " ";
-        result += c->toString();
-    }
-    return result;
-}
-
-void Game::save() {
-    if (currentRecord.timestamp.empty()) {
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        std::ostringstream oss;
-        oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
-        currentRecord.timestamp = oss.str();
-    }
-
-    if (currentRecord.difficulty.empty()) currentRecord.difficulty = "Unknown";
-
-    std::ofstream file("history.txt", std::ios::app);
-    if (!file.is_open()) return;
-
-    file << "===== BEGIN RECORD =====\n";
-    file << "Timestamp: " << currentRecord.timestamp << "\n";
-    file << "Difficulty: " << currentRecord.difficulty << "\n";
-    file << "InitialHand: " << currentRecord.playerInitialHand << "\n";
-    file << "PlaysCount: " << currentRecord.plays.size() << "\n";
-    for (const auto& play : currentRecord.plays)
-        file << "  " << play << "\n";
-    file << "Result: " << currentRecord.result << "\n";
-    file << "===== END RECORD =====\n\n";
-    file.close();
-
-    currentRecord = GameRecord{};
-}
-
-void Game::load() {
-    std::ifstream file("history.txt");
-    if (!file.is_open()) {
-        std::cout << "No history file found.\n";
-        return;
-    }
-
-    allRecords.clear();
-    GameRecord rec;
-    bool inside = false;
-    std::string line;
-
-    while (std::getline(file, line)) {
-        if (line == "===== BEGIN RECORD =====") {
-            inside = true;
-            rec = GameRecord{};
-            continue;
-        }
-        if (line == "===== END RECORD =====") {
-            if (inside) allRecords.push_back(rec);
-            inside = false;
-            continue;
-        }
-        if (!inside) continue;
-
-        if (line.find("Timestamp: ") == 0) rec.timestamp = line.substr(11);
-        else if (line.find("Difficulty: ") == 0) rec.difficulty = line.substr(12);
-        else if (line.find("InitialHand: ") == 0) rec.playerInitialHand = line.substr(13);
-        else if (line.find("Result: ") == 0) rec.result = line.substr(8);
-        else if (line.find("  ") == 0) rec.plays.push_back(line.substr(2));
-    }
-    file.close();
-
-    if (allRecords.empty()) {
-        std::cout << "No records.\n";
-        return;
-    }
-
-    std::cout << "\n===== History (" << allRecords.size() << " games) =====\n";
-    for (size_t i = 0; i < allRecords.size(); ++i) {
-        const auto& r = allRecords[i];
-        std::cout << "Game " << i+1 << "\n";
-        std::cout << "  Time:       " << r.timestamp << "\n";
-        std::cout << "  Difficulty: " << r.difficulty << "\n";
-        std::cout << "  Result:     " << r.result << "\n";
-        std::cout << "  Initial:    " << r.playerInitialHand << "\n";
-        std::cout << "  Plays:      " << r.plays.size() << "\n";
-        for (size_t j = 0; j < r.plays.size(); ++j)
-            std::cout << "    " << j+1 << ": " << r.plays[j] << "\n";
-        std::cout << "\n";
     }
 }
 

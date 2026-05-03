@@ -6,6 +6,9 @@
 #define TERMPOKER_POKERCARD_H
 #include <map>
 #include <string>
+#include "../ext-lib/json.hpp"
+using json = nlohmann::json;
+
 
 enum class POKER_CARD_VALUE {
     N3, N4, N5, N6, N7, N8, N9, N10, J, Q, K, A, N2, SmallJoker, LargeJoker, Unknown
@@ -256,6 +259,9 @@ public:
                 return 0;
         }
     }
+
+    void to_json(json& j, const PokerCard& card);
+    void from_json(const json& j, PokerCard& card);
 };
 
 #endif //TERMPOKER_POKERCARD_H
