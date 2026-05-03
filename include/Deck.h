@@ -176,7 +176,18 @@ public:
     void robotPlayCards() {
         for (int i = 1; i < this->players.size(); i++) {
             this->players[i].autoPlay(this->isNewRound());
-            std::cout << "Robot " << i+1 << " played: " << this->getLastPlayedCardsString() << std::endl;
+            const auto lastPlayed = this->getLastPlayedCards();
+            if (lastPlayed.empty()) {
+                std::cout << "Robot " << i+1 << " played nothing";
+            } else {
+                std::cout << "Robot " << i+1 << " played: " << this->getLastPlayedCardsString();
+            }
+            const auto remainCardsNumber = this->players[i].getCards().size();
+            if (remainCardsNumber <= 10) {
+                std::cout << " - " << remainCardsNumber << " cards left" << std::endl;
+            } else {
+                std::cout << std::endl;
+            }
             if (checkWin()) {
                 break;
             }
