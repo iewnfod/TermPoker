@@ -236,6 +236,20 @@ public:
         };
         return ss.str();
     }
+
+    /**
+     * Check if a dir exist sync.
+     * @param path check path
+     * @return true if dir exist
+     */
+    static bool dirExists(const std::string& path);
+
+    /**
+     * Make dir using a path.
+     * @param path dir path
+     * @return true if dir make successfully
+     */
+    static bool makeDir(const std::string& path);
 };
 
 #endif //TERMPOKER_UTILS_H

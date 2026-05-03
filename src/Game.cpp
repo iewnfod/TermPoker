@@ -9,27 +9,8 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include <sys/stat.h>
 #include <dirent.h>
 #include <algorithm>
-#ifdef _WIN32
-#include <direct.h>
-#endif
-
-namespace {
-    bool dirExists(const std::string& path) {
-        struct stat st;
-        return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
-    }
-
-    bool makeDir(const std::string& path) {
-        #ifdef _WIN32
-        return _mkdir(path.c_str()) == 0;
-        #else
-        return mkdir(path.c_str(), 0755) == 0;
-        #endif
-    }
-}
 
 std::string Game::getCurrentTimestamp() {
     auto t = std::time(nullptr);
@@ -48,8 +29,8 @@ std::string Game::generateHistoryFileName() {
 }
 
 void Game::ensureHistoryDir() {
-    std::string historyDir = Utils::joinPath({Store().getBasePath(), "history"});
-    if (!dirExists(historyDir)) makeDir(historyDir);
+    const std::string historyDir = Utils::joinPath({Store().getBasePath(), "history"});
+    if (!Utils::dirExists(historyDir)) Utils::makeDir(historyDir);
 }
 
 std::vector<std::string> cardsToStrings(const std::vector<PokerCard*>& cards) {

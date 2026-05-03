@@ -10,6 +10,7 @@
 #include <shlobj.h>
 #include <sstream>
 #include <comcat.h>
+#include <direct.h>
 
 int Utils::getch() {
     return _getch();
@@ -49,12 +50,28 @@ std::string Utils::wstring2string(const std::wstring& wstr) {
     return result;
 }
 
+bool Utils::dirExists(const std::string& path) {
+    DWORD ftyp = GetFileAttributesA(path.c_str());
+    if (ftyp == INVALID_FILE_ATTRIBUTES)
+        return false;
+
+    if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+        return true;
+
+    return false;
+}
+
+bool Utils::makeDir(const std::string &path) {
+    return _mkdir(path.c_str()) == 0;
+}
+
 #else
 #include <termios.h>
 #include <unistd.h>
 #include <cstdio>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <cstdlib>
 #include <pwd.h>
 
@@ -114,5 +131,20 @@ std::string Utils::wstring2string(const std::wstring& wstr) {
     std::wcsrtombs(&result[0], &src, result.size(), &state);
     result.resize(len);
     return result;
+}
+
+bool Utils::dirExists(const std::string& path) {
+    auto c = path.c_str();
+    struct stat info;
+    if (stat(c, &info) != 0) {
+        return false;
+    } else if (info.st_mode & S_IFDIR) {
+        return true;
+    }
+    return false;
+}
+
+bool Utils::makeDir(const std::string &path) {
+    return mkdir(path.c_str(), 0755) == 0;
 }
 #endif
