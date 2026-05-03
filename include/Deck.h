@@ -376,6 +376,9 @@ public:
             }
             std::cout << " • " << name << " " << i+1 << " remain " << this->players[i].getCards().size() << " cards." << std::endl;
         }
+        std::cout << "────────────────────────────────────────────" << std::endl;
+        std::cout << "Press any key to continue..." << std::endl;
+        Utils::getch();
     }
 
     /**

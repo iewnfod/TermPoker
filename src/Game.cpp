@@ -270,6 +270,9 @@ void Game::welcome() {
         else if (ch == 'a') {
             this->menu = GameMenu::About;
         }
+        else if (ch == 'r') {
+            this->menu = GameMenu::Rule;
+        }
 
         clearMenu();
     }
@@ -342,6 +345,51 @@ void Game::mainloop() {
         std::cout << "Author: " << Utils::getClickableLink("Iewnfod", "https://github.com/iewnfod") << ", " << Utils::getClickableLink("Andy", "https://github.com/Andymaster007") << std::endl;
         std::cout << "Open Source License: " << Utils::getClickableLink("MPL-2.0", "https://github.com/iewnfod/TermPoker/blob/master/LICENSE") << std::endl;
         std::cout << "Local Data Storage Path: " << this->store.getBasePath() << std::endl;
+        std::cout << "────────────────────────────────────────────" << std::endl;
+        std::cout << "Press any key to continue..." << std::endl;
+        Utils::getch();
+    } else if (action == GameMenu::Rule) {
+        std::cout << "Rule of TermPoker" << std::endl;
+        std::cout << "In TermPoker, we use the ruleset of GuanDan(掼蛋) with some modifications." << std::endl;
+        std::cout << "We removed the team and upgrade concept and only use the basic rule." << std::endl;
+
+        std::cout << std::endl << "Card values:" << std::endl;
+        std::cout << "3 < 4 < 5 < 6 < 7 < 8 < 9 < 10 < J < Q < K < A < 2 < Small Joker (SJ) < Large Joker (LJ)" << std::endl;
+
+        std::cout << std::endl << "Card colors:" << std::endl;
+        std::cout << " • " << PokerCard(POKER_CARD_VALUE::N3, POKER_CARD_TYPE::Diamonds).getTypeString() << " Diamonds" << std::endl;
+        std::cout << " • " << PokerCard(POKER_CARD_VALUE::N3, POKER_CARD_TYPE::Clubs).getTypeString() << " Clubs" << std::endl;
+        std::cout << " • " << PokerCard(POKER_CARD_VALUE::N3, POKER_CARD_TYPE::Hearts).getTypeString() << " Hearts" << std::endl;
+        std::cout << " • " << PokerCard(POKER_CARD_VALUE::N3, POKER_CARD_TYPE::Spades).getTypeString() << " Spades" << std::endl;
+        std::cout << "All joker cards are not belonging to any color. They are marked as " << PokerCard(POKER_CARD_VALUE::N3, POKER_CARD_TYPE::Joker).getTypeString() << " " << std::endl;
+
+        std::cout << std::endl << "Card types:" << std::endl;
+        std::cout << " • Single \t\t Only one card" << std::endl;
+        std::cout << " • Pair \t\t Two same cards" << std::endl;
+        std::cout << " • Triple \t\t Three same cards" << std::endl;
+        std::cout << " • Boom \t\t Four, five or six same cards" << std::endl;
+        std::cout << " • Three Plus Two \t A triple with another pair" << std::endl;
+        std::cout << " • Straight \t\t Five consecutive cards, not including 2" << std::endl;
+        std::cout << " • Double Triple \t Two triple with consecutive values (6 cards in total)" << std::endl;
+        std::cout << " • Triple Pair \t\t Three pair with consecutive values (6 cards in total)" << std::endl;
+        std::cout << "Jokers can only be played as single or pair, and Joker boom is not allowed in this rule." << std::endl;
+
+        std::cout << std::endl << "Compare card types:" << std::endl;
+        std::cout << " • Single / Pair / Triple \t\t Directly compare the card value" << std::endl;
+        std::cout << " • Boom \t\t\t\t First compare the boom size, then compare the card value" << std::endl;
+        std::cout << " • Three Plus Two \t\t\t Compare the value of triple in it" << std::endl;
+        std::cout << " • Straight \t\t\t\t Compare the largest value in this straight" << std::endl;
+        std::cout << " • Triple Pair / Double Triple \t\t Compare the largest pair or triple" << std::endl;
+
+        std::cout << std::endl << "When a game start, a new round will be created." << std::endl;
+        std::cout << "For each new round, the first player can play any valid card type but not skip." << std::endl;
+        std::cout << "Then others will play in sequence respectively. Player can do following options:" << std::endl;
+        std::cout << " • Play the same card type (including boom) larger than the previous one." << std::endl;
+        std::cout << " • Play a boom and take over the round when the previous one is not a boom." << std::endl;
+        std::cout << " • Skip the turn." << std::endl;
+        std::cout << "Until a player played something and all of others choose to skip, a new round will be created again, where the last played player would play first in the new round." << std::endl;
+        std::cout << "Once a player played out all cards, the player is the winner." << std::endl;
+
         std::cout << "────────────────────────────────────────────" << std::endl;
         std::cout << "Press any key to continue..." << std::endl;
         Utils::getch();

@@ -19,6 +19,7 @@ enum class GameMenu {
     SubDifficultyMedium,
     SubDifficultyHard,
     CheckHistory,
+    Rule,
     About,
     Quit,
 };
@@ -40,6 +41,7 @@ class Game {
             {GameMenu::SubDifficultyMedium, "Medium Mode"},
             {GameMenu::SubDifficultyHard, "Hard Mode"},
             {GameMenu::CheckHistory, "Check History"},
+            {GameMenu::Rule, "Rule"},
             {GameMenu::About, "About"},
             {GameMenu::Quit, "Quit"},
         };
