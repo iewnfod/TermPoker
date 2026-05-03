@@ -20,9 +20,23 @@
 
 ## Game Description
 
-TermPoker is a Poker Card game that runs in your terminal. It does not require a GUI so you can enjoy it anytime, anywhere. The game rules are adapted from the basic mechanics of "Guan Dan," removing the team-based and level-up systems to focus on the core card-playing and comparison logic. 
+### TermPoker: A Strategic Terminal-Based Poker Experience
 
-Every game consists of **4 players**：1 human and 3 robots.The game uses **2 sets of cards**（total 108 cards）equally split among the 4 players.
+TermPoker brings the classic Chinese card game "Guan Dan" to your terminal, offering a completely GUI-free gaming experience that works seamlessly on any system with a terminal emulator. Whether you're on macOS, Linux, Windows with WSL, or SSH into a remote server, TermPoker delivers the full poker experience directly in your command line.
+
+### Gameplay Strategy & Challenge
+
+At its core, TermPoker is a game of strategy, memory, and tactical decision-making. Playing against three computer-controlled opponents of varying difficulty levels, you must carefully manage your hand to outplay your rivals. Each decision matters—whether to play a single card to pressure opponents, hold onto powerful bomb combinations for critical moments, or strategically play high-value cards to eliminate threats. The game rewards players who can predict opponent behavior, remember which cards have been played, and adapt their strategy based on the dynamic table situation.
+
+The three difficulty levels ensure that TermPoker remains engaging whether you're learning the ropes or seeking a serious challenge. Beginners can practice against easy opponents with a Card Tracker while they master the intricate rules and card combinations, while experienced players can test their skills against the hard AI that employs sophisticated strategy and pattern recognition.
+
+### Immersive Terminal Interface
+
+TermPoker doesn't compromise on user experience despite being terminal-based. The keyboard-interactive interface allows fluid gameplay with arrow keys for navigation, spacebar for card selection, and Enter to play. We built your hand into a row of poker card figures which support real-time visual feedback.
+
+### Cross-Platform Accessibility
+
+Built entirely in C++ with no GUI dependencies, TermPoker is lightweight and universally compatible. Play locally, or SSH into your game on a remote server—the experience remains identical. Its minimal resource footprint means you can run it alongside other terminal applications without any overhead.
 
 **Card Type（From smallest to largest）：**
 
