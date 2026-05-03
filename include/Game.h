@@ -112,20 +112,40 @@ class Game {
         std::string result;
     };
 
-    GameRecord currentRecord;           // 当前对局暂存
-    std::vector<GameRecord> allRecords; // 仅在 showHistory 中使用
+    GameRecord currentRecord;
+    std::vector<GameRecord> allRecords;
 
-    // 友元 JSON 转换函数（只声明，定义在 .cpp）
+    /**
+     * @param r
+     * to save struct GameRecord
+     */
     friend void to_json(json& j, const GameRecord& r);
+
+    /**
+     * @param r
+     * to read struct GameRecord
+     */
     friend void from_json(const json& j, GameRecord& r);
 
-    // ---- 私有辅助函数（声明）----
+    /**
+     * @return current time
+     */
     static std::string getCurrentTimestamp();
 
+    /**
+     * @return history file name "time.json"
+     */
     static std::string generateHistoryFileName();
 
+    /**
+     * check if history directory exists, if not create history directory
+     */
     static void ensureHistoryDir();
 
+    /**
+     * @param files
+     * read history from files
+     */
     static void collectHistoryFiles(std::vector<std::string>& files);
 
 public:
@@ -135,16 +155,6 @@ public:
             this->quit();
         });
     };
-
-    /**
-     * Save data to store.
-     */
-    void save();
-
-    /**
-     * Load data from store.
-     */
-    void load();
 
     /**
      * Exit game.
@@ -164,16 +174,32 @@ public:
      */
     void welcome();
 
+    /**
+     * @param diff
+     * set difficulty to currentRecord
+     */
     void setCurrentDifficulty(GameDifficulty diff);
 
+    /**
+     * @param hand
+     * set initialHand to currentRecord
+     */
     void recordInitialHand(const std::vector<PokerCard*>& hand);
 
-    void recordPlay(const std::vector<PokerCard*>& playedCards);
-
+    /**
+     * @param result
+     * set result (win, loose, quit) to currentRecord
+     */
     void recordResult(const std::string& result);
 
+    /**
+     * save currentRecord to .json file
+     */
     void saveCurrentGame();
 
+    /**
+     * print history
+     */
     void showHistory();
 
 };
