@@ -107,7 +107,6 @@ class Game {
         std::string timestamp;
         GameDifficulty difficulty;
         std::vector<std::string> playerInitialHand;
-        std::vector<std::vector<std::string>> plays;
         std::string result;
     };
 

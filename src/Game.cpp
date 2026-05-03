@@ -48,9 +48,7 @@ std::string Game::generateHistoryFileName() {
 }
 
 void Game::ensureHistoryDir() {
-    std::string base = Store().getBasePath();
-    std::string historyDir = base + "/history";
-    if (!dirExists(base)) makeDir(base);
+    std::string historyDir = Utils::joinPath({Store().getBasePath(), "history"});
     if (!dirExists(historyDir)) makeDir(historyDir);
 }
 
@@ -64,14 +62,14 @@ std::vector<std::string> cardsToStrings(const std::vector<PokerCard*>& cards) {
 }
 
 void Game::collectHistoryFiles(std::vector<std::string>& files) {
-    std::string historyDir = Store().getBasePath() + "/history";
+    std::string historyDir = Utils::joinPath({Store().getBasePath(), "history"});
     DIR* dir = opendir(historyDir.c_str());
     if (dir) {
         struct dirent* entry;
         while ((entry = readdir(dir)) != nullptr) {
             std::string name = entry->d_name;
             if (name.length() > 5 && name.substr(name.length() - 5) == ".json") {
-                files.push_back(historyDir + "/" + name);
+                files.push_back(Utils::joinPath({historyDir, name}));
             }
         }
         closedir(dir);
@@ -87,10 +85,6 @@ void Game::recordInitialHand(const std::vector<PokerCard*>& hand) {
     currentRecord.playerInitialHand = cardsToStrings(hand);
 }
 
-void Game::recordPlay(const std::vector<PokerCard*>& playedCards) {
-    currentRecord.plays.push_back(cardsToStrings(playedCards));
-}
-
 void Game::recordResult(const std::string& result) {
     currentRecord.result = result;
 }
@@ -100,7 +94,7 @@ void Game::saveCurrentGame() {
         currentRecord.timestamp = getCurrentTimestamp();
 
     ensureHistoryDir();
-    std::string fullPath = Store().getBasePath() + "/history/" + generateHistoryFileName();
+    std::string fullPath = Utils::joinPath({Store().getBasePath(), "history", generateHistoryFileName()});
 
     std::ofstream file(fullPath);
     if (!file.is_open()) {
@@ -153,21 +147,13 @@ void Game::showHistory() {
             default:                     std::cout << "Unknown";
         }
         std::cout << "\n  Result:     " << rec.result << "\n";
-        std::cout << "  Initial Hand: ";
-        for (const auto& cardStr : rec.playerInitialHand) {
-            // 可选：将字符串转回 PokerCard 再打印漂亮格式，或直接打印原始字符串
-            PokerCard card(cardStr);
-            std::cout << card.getTypeString() << card.getValueString() << " ";
-        }
-        std::cout << "\n  Moves:      " << rec.plays.size() << "\n";
-        for (size_t j = 0; j < rec.plays.size(); ++j) {
-            std::cout << "    " << (j+1) << ": ";
-            for (const auto& cardStr : rec.plays[j]) {
-                PokerCard card(cardStr);
-                std::cout << card.getTypeString() << card.getValueString() << " ";
-            }
-            std::cout << "\n";
-        }
+        // std::cout << "  Initial Hand: ";
+        // for (const auto& cardStr : rec.playerInitialHand) {
+        //     // 可选：将字符串转回 PokerCard 再打印漂亮格式，或直接打印原始字符串
+        //     PokerCard card(cardStr);
+        //     std::cout << card.getTypeString() << card.getValueString() << " ";
+        // }
+        std::cout << "\n";
     }
 }
 
@@ -314,18 +300,23 @@ void Game::mainloop() {
     if (action == GameMenu::Quit || this->quitFlag) {
         return;
     } else if (action == GameMenu::CheckHistory) {
-        std::cout << "Coming soon..." << std::endl;
+        this->showHistory();
     } else if (action == GameMenu::PlayNow) {
         this->deck = new Deck(2);
         deck->onQuit([this]() {
             this->quit();
+
         });
         this->player = deck->autoGeneratePlayers();
         deck->setDifficulty(difficulty);
+        this->setCurrentDifficulty(difficulty);
         deck->givePlayerCards();
+        const std::vector<PokerCard*> playerHand = player->getCards();
+        this->recordInitialHand(playerHand);
         while (deck->getWinner().empty()) {
             player->waitForUserInput();
             if (this->quitFlag) {
+                this->recordResult("Quit");
                 break;
             }
             std::cout << std::endl << "You played: " << deck->getLastPlayedCardsString() << std::endl;
@@ -337,7 +328,9 @@ void Game::mainloop() {
         }
         if (!deck->getWinner().empty()) {
             deck->congratulateWin();
+            this->recordResult(deck->getWinner() == player->getId() ? "Win" : "Lose");
         }
+        this->saveCurrentGame();
     } else if (action == GameMenu::About) {
         std::cout << "About TermPoker" << std::endl;
         std::cout << "Repository: " << Utils::getClickableLink("https://github.com/iewnfod/TermPoker") << std::endl;

@@ -310,6 +310,10 @@ public:
 
     void to_json(json& j, const GameDifficulty& d);
     void from_json(const json& j, GameDifficulty& d);
+
+    std::vector<PokerCard *> getCards() {
+        return cards;
+    }
 };
 
 #endif //TERMPOKER_PLAYER_H

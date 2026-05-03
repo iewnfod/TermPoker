@@ -33,7 +33,6 @@ void to_json(json& j, const Game::GameRecord& r) {
             {"timestamp", r.timestamp},
             {"difficulty", r.difficulty},
             {"playerInitialHand", r.playerInitialHand},
-            {"plays", r.plays},
             {"result", r.result}
     };
 }
@@ -42,7 +41,6 @@ void from_json(const json& j, Game::GameRecord& r) {
     j.at("timestamp").get_to(r.timestamp);
     j.at("difficulty").get_to(r.difficulty);
     j.at("playerInitialHand").get_to(r.playerInitialHand);
-    j.at("plays").get_to(r.plays);
     j.at("result").get_to(r.result);
 }
 
