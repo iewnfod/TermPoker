@@ -189,7 +189,7 @@ void Player::printCards() const {
 std::vector<PokerCard*> Player::waitForUserInput() {
     std::cout << std::endl;
     std::cout << "Use <left⬅️> or <right➡️> to select, <space␣> to choose, <enter↩️> to confirm, <s> to skip, and <q> to exit this game." << std::endl;
-    std::cout << "Round " << this->roundNumber << std::endl;
+    std::cout << "Round " << this->roundNumber << " - " << this->cards.size() << " cards left" << std::endl;
     this->hint.clear();
     this->printLeftCards();
 
