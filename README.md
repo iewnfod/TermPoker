@@ -5,7 +5,7 @@
 <a href="./README_zh.md">简体中文</a> | <a href="./README.md">English</a>
 </p>
 
-> This project use some AI tools for design and optimization, but it is not a vide-coding project.
+> This project use some AI tools for design and optimization, but it is not a vibe-coding project.
 
 ---
 
